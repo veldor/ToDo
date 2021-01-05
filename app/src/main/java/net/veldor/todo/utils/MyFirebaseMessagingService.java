@@ -5,6 +5,8 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Map;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -72,7 +74,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * the token.
      */
     @Override
-    public void onNewToken(String token) {
+    public void onNewToken(@NotNull String token) {
         Preferences.getInstance().setFirebaseToken(token);
     }
     // [END on_new_token]

@@ -22,6 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ToDo">
         <activity
+            android:name=".ui.IncomingTaskActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="sensorPortrait"
+            android:showOnLockScreen="true"
+            tools:targetApi="jelly_bean_mr1" />
+        <activity
             android:name=".ui.TaskDetailActivity"
             android:launchMode="singleInstance" />
         <activity
@@ -40,9 +46,9 @@
 
         <service
             android:name=".utils.MyFirebaseMessagingService"
-            tools:targetApi="n"
             android:directBootAware="true"
-            android:exported="false">
+            android:exported="false"
+            tools:targetApi="n">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

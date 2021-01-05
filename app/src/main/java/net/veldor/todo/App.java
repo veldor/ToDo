@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.lifecycle.MutableLiveData;
 
+import net.veldor.todo.selections.GetTaskInfoResponse;
 import net.veldor.todo.selections.RefreshDataResponse;
 import net.veldor.todo.utils.FirebaseHandler;
 import net.veldor.todo.utils.Preferences;
@@ -15,7 +16,7 @@ public class App extends Application {
     public String mLoginError;
     public MutableLiveData<RefreshDataResponse> mCurrentList = new MutableLiveData<>();
     public MutableLiveData<RefreshDataResponse> mCurrentIncomingList = new MutableLiveData<>();
-
+    public MutableLiveData<GetTaskInfoResponse> mTaskInfo = new MutableLiveData<>();
     public static App getInstance() {
         return instance;
     }
@@ -25,7 +26,7 @@ public class App extends Application {
         super.onCreate();
         instance = this;
 
-        if(Preferences.getInstance().getFirebaseToken() == null){
+        if (Preferences.getInstance().getFirebaseToken() == null) {
             (new FirebaseHandler()).getToken();
         }
     }

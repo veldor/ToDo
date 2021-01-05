@@ -9,6 +9,7 @@ import androidx.work.WorkManager;
 
 import net.veldor.todo.App;
 import net.veldor.todo.workers.UpdateIncomingTaskListWorker;
+import net.veldor.todo.workers.UpdateTaskListWorker;
 
 public class OutgoingViewModel extends ViewModel {
 
@@ -16,7 +17,7 @@ public class OutgoingViewModel extends ViewModel {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(UpdateIncomingTaskListWorker.class).addTag(UpdateIncomingTaskListWorker.ACTION).setConstraints(constraints).build();
-        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(UpdateIncomingTaskListWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(UpdateTaskListWorker.class).addTag(UpdateTaskListWorker.ACTION).setConstraints(constraints).build();
+        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(UpdateTaskListWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
     }
 }
