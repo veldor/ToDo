@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">ToDo</string>
+    <string name="fab">fab</string>
+    <string name="main_channel_description">Main channel</string>
+    <string name="login_label">login</string>
+    <string name="prompt_password">pass</string>
+    <string name="action_sign_in_short">pass</string>
+    <string name="action_sign_in">Sing in</string>
+    <string name="done_message">done</string>
+    <string name="failed_message">failed</string>
+    <string name="wait_for_initialize">wait initialize</string>
+    <string name="wait_for_internet_message">wait internet connection</string>
+    <string name="message_invalid_login_data">invalid login data</string>
+    <string name="message_login_error">login error</string>
+    <string name="message_empty_login_data">empty login</string>
+    <string name="message_login_blocked">login blocked</string>
+    <string name="message_login_timeout">login timeout</string>
+    <string name="send_tast_title">Отправить заявку</string>
+    <string name="fill_name_title">Заполните название заявки</string>
+    <string name="set_body_title">Опишите суть проблемы</string>
+    <string name="add_photo_label">Добавить фото</string>
+    <string name="add_file_label">Добавить файл</string>
+    <string name="wait_title">Please, wait</string>
+    <string name="wait_message">I doing my job</string>
+    <string name="myTickets">Мои заявки</string>
+    <string name="incomingTickets">Входящие</string>
+    <string name="adminWindow">Контроль</string>
+    <string name="outgoing_fragment_title">Мои заявки</string>
+    <string name="incoming_fragment_title">Мне</string>
+    <string name="sort_message">Сортировка</string>
+    <string name="filter_message">Фильтр</string>
+    <string name="title_activity_bottom_navitation">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>

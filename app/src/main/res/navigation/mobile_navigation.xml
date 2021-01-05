@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/navigation_outgoing">
+
+    <fragment
+        android:id="@+id/navigation_outgoing"
+        android:name="net.veldor.todo.ui.outgoing.OutgoingFragment"
+        android:label="@string/outgoing_fragment_title"
+        tools:layout="@layout/fragment_outgoing_tickets" />
+
+    <fragment
+        android:id="@+id/navigation_incoming"
+        android:name="net.veldor.todo.ui.incoming.IncomingFragment"
+        android:label="@string/incoming_fragment_title"
+        tools:layout="@layout/fragment_incoming_tickets" />
+
+</navigation>

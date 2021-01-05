@@ -1,43 +1,68 @@
 package net.veldor.todo;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
-import net.veldor.todo.adapters.TasksAdapter;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
-import java.util.ArrayList;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import net.veldor.todo.selections.Role;
+import net.veldor.todo.ui.LoginActivity;
+import net.veldor.todo.utils.Preferences;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recycler;
+    private static final int LOGIN_RESULT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupInterface();
 
-        setupUi();
     }
 
-    private void setupUi() {
-        recycler = findViewById(R.id.resultsList);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
-        ArrayList<WorkingTask> tasks = new ArrayList<>();
-        WorkingTask wt;
-        int counter = 0;
-        while (counter < 10){
-            wt = new WorkingTask();
-            wt.taskName = "Задача " + counter;
-            wt.taskValue = "Нужно сделать что-то " + counter;
-            wt.taskStatus = counter % 2 == 0 ? "В работе" : "Ожидает подтверждения";
-            wt.worker = counter % 2 == 1 ? "Отдел IT" : "Инженерная служба";
-            tasks.add(wt);
-            counter++;
+    private void setupInterface() {
+        Log.d("surprise", "MainActivity setupInterface 45: Role is " + Preferences.getInstance().getRole());
+        BottomNavigationView mNnavView = findViewById(R.id.nav_view);
+        if (Preferences.getInstance().getRole() == Role.ROLE_USER) {
+            mNnavView.setVisibility(View.GONE);
+        } else {
+            AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.navigation_incoming, R.id.navigation_outgoing)
+                    .build();
+            NavHostFragment fragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+            NavController navController = fragment.getNavController();
+            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+            NavigationUI.setupWithNavController(mNnavView, navController);
         }
-        recycler.setAdapter(new TasksAdapter(tasks));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Preferences.getInstance().isUserUnknown()) {
+            startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_RESULT);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == LOGIN_RESULT) {
+            if (resultCode == RESULT_OK) {
+                setupInterface();
+            } else {
+                startActivityForResult(new Intent(this, LoginActivity.class), LOGIN_RESULT);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

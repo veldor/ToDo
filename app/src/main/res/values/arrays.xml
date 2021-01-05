@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="workers">
+        <item>Выберите исполнителя</item>
+        <item>IT-отдел</item>
+        <item>Инженерная служба</item>
+        <item>Офис</item>
+    </string-array>
+</resources>

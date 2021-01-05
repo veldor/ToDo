@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_outgoing"
+        android:icon="@drawable/ic_baseline_arrow_upward_24"
+        android:title="@string/myTickets" />
+
+    <item
+        android:id="@+id/navigation_incoming"
+        android:icon="@drawable/ic_baseline_arrow_downward_24"
+        android:title="@string/incomingTickets" />
+
+</menu>

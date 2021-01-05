@@ -9,7 +9,7 @@
 
         <variable
             name="task"
-            type="net.veldor.todo.WorkingTask" />
+            type="net.veldor.todo.selections.TaskItem" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -27,12 +27,21 @@
             android:padding="5dp">
 
             <TextView
+                android:id="@+id/statusColorView"
+                android:layout_width="10dp"
+                android:layout_height="0dp"
+                android:background="@{task.sideColor}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
                 android:id="@+id/title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:text="@{task.taskName}"
+                android:text="@{task.task_header}"
                 android:textAlignment="center"
                 android:textSize="30sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -56,12 +65,14 @@
                     android:id="@+id/worker"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    android:text="@{task.worker}"
-                    android:layout_weight="1" />
+                    android:text="@{task.executor}"
+                    android:layout_weight="1"
+                    app:drawableStartCompat="@drawable/ic_baseline_settings_24"
+                    app:drawableLeftCompat="@drawable/ic_baseline_settings_24" />
                 <TextView
                     android:id="@+id/state"
                     android:layout_width="wrap_content"
-                    android:text="@{task.taskStatus}"
+                    android:text="@{task.task_status}"
                     android:layout_height="0dp"
                     android:layout_weight="1" />
             </LinearLayout>
