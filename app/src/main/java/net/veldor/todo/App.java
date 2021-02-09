@@ -45,8 +45,8 @@ public class App extends Application {
         if (Preferences.getInstance().getFirebaseToken() == null) {
             (new FirebaseHandler()).getToken();
         }
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ConnectPostWorker.class).addTag(ConnectPostWorker.ACTION).build();
-        WorkManager.getInstance(this).enqueueUniqueWork(ConnectPostWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
+//        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ConnectPostWorker.class).addTag(ConnectPostWorker.ACTION).build();
+//        WorkManager.getInstance(this).enqueueUniqueWork(ConnectPostWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
 
 
     }

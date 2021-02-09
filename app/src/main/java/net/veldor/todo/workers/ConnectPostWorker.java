@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import net.veldor.todo.App;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,7 +33,7 @@ public class ConnectPostWorker extends Worker {
     public Result doWork() {
         try {
             OkHttpClient client = new OkHttpClient();
-            URL url = new URL("https://rdcnn.ru/personal-api");
+            URL url = new URL(App.API_ADDRESS);
             RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
                     .addFormDataPart("some-field", "some-value")
                     .build();
