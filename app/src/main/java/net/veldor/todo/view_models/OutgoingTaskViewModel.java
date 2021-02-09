@@ -12,11 +12,10 @@ import androidx.work.WorkManager;
 
 import net.veldor.todo.App;
 import net.veldor.todo.selections.TaskItem;
-import net.veldor.todo.workers.ConfirmTaskWorker;
-import net.veldor.todo.workers.FinishTaskWorker;
+import net.veldor.todo.workers.CancelTaskWorker;
 import net.veldor.todo.workers.GetTaskInfoWorker;
 
-public class IncomingTaskViewModel extends ViewModel {
+public class OutgoingTaskViewModel extends ViewModel {
 
     public LiveData<WorkInfo> getTaskInfo(String task_id) {
         Data inputData = new Data.Builder()
@@ -31,30 +30,17 @@ public class IncomingTaskViewModel extends ViewModel {
         return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
     }
 
-    public LiveData<WorkInfo> confirmTask(TaskItem mData, int plannedTime) {
+    public LiveData<WorkInfo> cancelTask(TaskItem mData) {
         Data inputData = new Data.Builder()
-                .putString(ConfirmTaskWorker.TASK_ID, mData.id)
-                .putInt(ConfirmTaskWorker.PLANNED_TIME, plannedTime)
+                .putString(CancelTaskWorker.TASK_ID, mData.id)
                 .build();
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ConfirmTaskWorker.class).addTag(ConfirmTaskWorker.ACTION).setInputData(inputData).setConstraints(constraints).build();
-        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(ConfirmTaskWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(CancelTaskWorker.class).addTag(CancelTaskWorker.ACTION).setInputData(inputData).setConstraints(constraints).build();
+        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(CancelTaskWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
         return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
     }
 
-    public LiveData<WorkInfo> finishTask(TaskItem mData) {
-        Data inputData = new Data.Builder()
-                .putString(FinishTaskWorker.TASK_ID, mData.id)
-                .build();
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(FinishTaskWorker.class).addTag(FinishTaskWorker.ACTION).setInputData(inputData).setConstraints(constraints).build();
-        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(FinishTaskWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
-        return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
-    }
 }

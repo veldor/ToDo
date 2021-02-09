@@ -1,7 +1,7 @@
 package net.veldor.todo.selections;
 
-public class GetTaskInfoResponse {
+public class NewTaskResponse {
     public String status;
     public String message;
-    public TaskItem task_info;
+    public int new_tasks_count;
 }

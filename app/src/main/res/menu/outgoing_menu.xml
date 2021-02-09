@@ -2,12 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:yourapp="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_sort_by"
         android:icon="@drawable/ic_baseline_sort_24"
         android:title="@string/sort_message"
         yourapp:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_filter"
         android:icon="@drawable/ic_baseline_filter_list_24"
         android:title="@string/filter_message"
         yourapp:showAsAction="ifRoom" />

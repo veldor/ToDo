@@ -15,12 +15,12 @@ import net.veldor.todo.selections.RefreshDataResponse;
 import net.veldor.todo.selections.TaskItem;
 import net.veldor.todo.utils.TimeHandler;
 
-public class UpdateIncomingTaskListWorker extends ConnectWorker {
+public class UpdateOutgoingTaskListWorker extends ConnectWorker {
 
 
     public static final String ACTION = "update task list";
 
-    public UpdateIncomingTaskListWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public UpdateOutgoingTaskListWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
 
@@ -28,7 +28,7 @@ public class UpdateIncomingTaskListWorker extends ConnectWorker {
     @Override
     public Result doWork() {
         try {
-            String answer = handleRequest("getIncomingTaskList", null);
+            String answer = handleRequest("getTaskList", null);
             if (answer != null) {
                 GsonBuilder builder = new GsonBuilder();
                 Gson responseGson = builder.create();
@@ -39,10 +39,27 @@ public class UpdateIncomingTaskListWorker extends ConnectWorker {
                     ) {
                         if(i.task_creation_time > 0){
                             i.task_creation_time_formatted = TimeHandler.formatTime(i.task_creation_time);
-                            Log.d("surprise", "UpdateIncomingTaskListWorker doWork 41: set time on " + i.task_creation_time_formatted);
                         }
                         else{
                             i.task_creation_time_formatted = "Ещё не назначено";
+                        }
+                        if(i.task_accept_time > 0){
+                            i.task_accept_time_formatted = TimeHandler.formatTime(i.task_accept_time);
+                        }
+                        else{
+                            i.task_accept_time_formatted = "Ещё не назначено";
+                        }
+                        if(i.task_planned_finish_time > 0){
+                            i.task_planned_finish_time_formatted = TimeHandler.formatTime(i.task_planned_finish_time);
+                        }
+                        else{
+                            i.task_planned_finish_time_formatted = "Ещё не назначено";
+                        }
+                        if(i.task_finish_time > 0){
+                            i.task_finish_time_formatted = TimeHandler.formatTime(i.task_finish_time);
+                        }
+                        else{
+                            i.task_finish_time_formatted = "Ещё не назначено";
                         }
                         switch (i.target) {
                             case "office":
@@ -84,9 +101,9 @@ public class UpdateIncomingTaskListWorker extends ConnectWorker {
                                 break;
                         }
                     }
-
                 }
-                App.getInstance().mCurrentIncomingList.postValue(resp);
+
+                App.getInstance().mCurrentList.postValue(resp);
                 return Result.success();
             }
         } catch (Exception e) {

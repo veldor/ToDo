@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.preference.Preference;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -12,6 +11,7 @@ import androidx.work.WorkerParameters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import net.veldor.todo.App;
 import net.veldor.todo.selections.LoginResponse;
 import net.veldor.todo.utils.Preferences;
 
@@ -39,7 +39,7 @@ public class LoginWorker extends Worker {
         String login = data.getString(USER_LOGIN);
         String password = data.getString(USER_PASSWORD);
         try {
-            URL url = new URL("https://rdcnn.ru/personal-api");
+            URL url = new URL(App.API_ADDRESS);
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json; utf-8");

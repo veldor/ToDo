@@ -11,7 +11,6 @@ import androidx.work.WorkerParameters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import net.veldor.todo.App;
 import net.veldor.todo.selections.RefreshDataResponse;
 import net.veldor.todo.utils.Preferences;
 

@@ -5,27 +5,21 @@ import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.veldor.todo.App;
+import net.veldor.todo.R;
 import net.veldor.todo.selections.GetTaskInfoResponse;
-import net.veldor.todo.selections.RefreshDataResponse;
-import net.veldor.todo.selections.TaskItem;
-import net.veldor.todo.utils.Preferences;
+import net.veldor.todo.utils.TimeHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Map;
 
-public class GetTaskInfoWorker extends Worker {
+import static java.util.Map.entry;
+
+public class GetTaskInfoWorker extends ConnectWorker {
 
 
     public static final String ACTION = "getTaskInfo";
@@ -38,41 +32,73 @@ public class GetTaskInfoWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        Data data = getInputData();
+        String taskId = data.getString(TASK_ID);
+        Map<String, String> args = Map.ofEntries(
+                entry("taskId", taskId)
+        );
         try {
-            Data data = getInputData();
-            String taskId = data.getString(TASK_ID);
-            URL url = new URL("https://rdcnn.ru/personal-api");
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json; utf-8");
-            con.setRequestProperty("Accept", "application/json");
-            con.setDoOutput(true);
-            String jsonInputString = "{\"cmd\":\"getTaskInfo\", \"token\":\"" + Preferences.getInstance().getToken() + "\", \"taskId\":\"" + taskId + "\"}";
-            try (OutputStream os = con.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
+            String answer = handleRequest("getTaskInfo", args);
+            if (answer != null) {
+                GsonBuilder builder = new GsonBuilder();
+                Gson responseGson = builder.create();
+                GetTaskInfoResponse resp = responseGson.fromJson(answer, GetTaskInfoResponse.class);
+                if(resp.task_info.task_creation_time > 0){
+                    resp.task_info.task_creation_time_formatted = TimeHandler.formatTime(resp.task_info.task_creation_time);
+                }
+                else{
+                    resp.task_info.task_creation_time_formatted = "Ещё не назначено";
+                }
+                if(resp.task_info.task_accept_time > 0){
+                    resp.task_info.task_accept_time_formatted = TimeHandler.formatTime(resp.task_info.task_accept_time);
+                }
+                else{
+                    resp.task_info.task_accept_time_formatted = "Ещё не назначено";
+                }
+                if(resp.task_info.task_planned_finish_time > 0){
+                    resp.task_info.task_planned_finish_time_formatted = TimeHandler.formatTime(resp.task_info.task_planned_finish_time);
+                }
+                else{
+                    resp.task_info.task_planned_finish_time_formatted = "Ещё не назначено";
+                }
+                if(resp.task_info.task_finish_time > 0){
+                    resp.task_info.task_finish_time_formatted = TimeHandler.formatTime(resp.task_info.task_finish_time);
+                }
+                else{
+                    resp.task_info.task_finish_time_formatted = "Ещё не назначено";
+                }
+                if(resp.task_info.executor == null || resp.task_info.executor.isEmpty()){
+                    resp.task_info.executor = App.getInstance().getString(R.string.executor_not_set_message);
+                }
 
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(con.getInputStream(), "utf-8"))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine = null;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
+                switch (resp.task_info.task_status) {
+                    case "created":
+                        resp.task_info.task_status = "Ожидает подтвержения";
+                        resp.task_info.task_status_code = 1;
+                        resp.task_info.sideColor = Color.parseColor("#FFC107");
+                        break;
+                    case "accepted":
+                        resp.task_info.task_status = "В работе";
+                        resp.task_info.task_status_code = 2;
+                        resp.task_info.sideColor = Color.parseColor("#03A9F4");
+                        break;
+                    case "finished":
+                        resp.task_info.task_status = "Завершено";
+                        resp.task_info.task_status_code = 3;
+                        resp.task_info.sideColor = Color.parseColor("#8BC34A");
+                        break;
+                    case "cancelled":
+                        resp.task_info.task_status = "Отменено";
+                        resp.task_info.task_status_code = 4;
+                        resp.task_info.sideColor = Color.parseColor("#FF5722");
+                        break;
                 }
-                if (response != null) {
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson responseGson = builder.create();
-                    GetTaskInfoResponse resp = responseGson.fromJson(response.toString(), GetTaskInfoResponse.class);
-                    App.getInstance().mTaskInfo.postValue(resp);
-                }
+                App.getInstance().mTaskInfo.postValue(resp);
+                return Result.success();
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
         return Result.failure();
     }
 }

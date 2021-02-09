@@ -50,6 +50,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 switch (data.get("action")){
                     case "task_created":
                         MyNotify.getInstance().notifyTaskCreated(data.get("task_id"));
+                        break;
+                    case "task_accepted":
+                        MyNotify.getInstance().notifyTaskAccepted(data.get("task_id"));
+                        break;
+                    case "task_finished":
+                        MyNotify.getInstance().notifyTaskFinished(data.get("task_id"));
+                        break;
+                    case "task_cancelled":
+                        MyNotify.getInstance().notifyTaskCancelled(data.get("task_id"));
+                        break;
+                    case "task_dismissed":
+                        MyNotify.getInstance().notifyTaskDismissed(data.get("task_id"), data.get("reason"));
+                        break;
+
                 }
             }
         }

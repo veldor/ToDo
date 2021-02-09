@@ -1,7 +1,9 @@
 package net.veldor.todo.ui.outgoing;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,17 +25,22 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.veldor.todo.App;
 import net.veldor.todo.R;
-import net.veldor.todo.adapters.TasksAdapter;
+import net.veldor.todo.adapters.OutgoingTasksAdapter;
+import net.veldor.todo.adapters.OutgoingTasksAdapter;
 import net.veldor.todo.selections.RefreshDataResponse;
+import net.veldor.todo.selections.TaskItem;
 import net.veldor.todo.ui.AddNewTaskActivity;
+import net.veldor.todo.ui.OutgoingTaskDetailsActivity;
 import net.veldor.todo.utils.Preferences;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 
 public class OutgoingFragment extends Fragment {
     private static final String[] sortingOptions = new String[]{"По статусу", "По названию", "По времени добавления", "По назначению", "По времени завершения"};
 
-    private final String[] filterOptions = {"Ожидают подтверждения", "В работе", "Завершённые", "Отменённые"};
-    boolean[] filter = {true, true, false, false};
+    private final String[] filterOptions = {"Ожидают подтверждения", "В работе", "Завершённые", "Отменённые мной", "Отменённые исполнителем"};
+    final boolean[] filter = {true, true, false, false, false};
 
     private RecyclerView recycler;
     private OutgoingViewModel mViewModel;
@@ -64,7 +71,7 @@ public class OutgoingFragment extends Fragment {
             if (response != null) {
                 if (response.list != null && response.list.size() > 0) {
                     // обновлю данные
-                    ((TasksAdapter) recycler.getAdapter()).setItems(response.list, filter);
+                    ((OutgoingTasksAdapter) recycler.getAdapter()).setItems(response.list, filter);
                 } else {
                     if (mActivity != null && mActivity.isFinishing()) {
                         Toast.makeText(mActivity, "Список задач пуст", Toast.LENGTH_SHORT).show();
@@ -77,7 +84,7 @@ public class OutgoingFragment extends Fragment {
     private void setupUI(View root) {
         recycler = root.findViewById(R.id.resultsList);
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        recycler.setAdapter(new TasksAdapter());
+        recycler.setAdapter(new OutgoingTasksAdapter());
 
         FloatingActionButton fab = root.findViewById(R.id.fab);
         fab.setOnClickListener(v -> startActivity(new Intent(getContext(), AddNewTaskActivity.class)));
@@ -91,6 +98,7 @@ public class OutgoingFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.d("surprise", "OutgoingFragment onOptionsItemSelected 94: menu clicked");
         if (item.getTitle().equals(getString(R.string.filter_message))) {
             // покажу диалог выбора элементов для отображения
             showFilterDialog();
@@ -104,17 +112,53 @@ public class OutgoingFragment extends Fragment {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setTitle("Отображать задачи")
                 .setMultiChoiceItems(filterOptions, filter, (dialog, which, isChecked) -> filter[which] = isChecked)
-                .setPositiveButton("Показать", (dialog, which) -> ((TasksAdapter) recycler.getAdapter()).applyFilter(filter));
+                .setPositiveButton("Показать", (dialog, which) -> ((OutgoingTasksAdapter) recycler.getAdapter()).applyFilter(filter));
         dialogBuilder.create().show();
     }
 
     private void showSortDialog() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
         dialog.setTitle("Выберите тип сортировки")
-                .setItems(sortingOptions, (dialog1, which) -> ((TasksAdapter) recycler.getAdapter()).sort(which));
+                .setItems(sortingOptions, (dialog1, which) -> ((OutgoingTasksAdapter) recycler.getAdapter()).sort(which));
         // покажу список типов сортировки
         if (!getActivity().isFinishing()) {
             dialog.show();
         }
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        int position;
+        try {
+            position = ((OutgoingTasksAdapter) recycler.getAdapter()).getPosition();
+        } catch (Exception e) {
+            return super.onContextItemSelected(item);
+        }
+        TaskItem taskItem = ((OutgoingTasksAdapter) recycler.getAdapter()).getItem(position);
+        if (item.getTitle().equals(getString(R.string.show_more_menu_item))) {
+            // открою просмотр элемента
+            Intent intent = new Intent(App.getInstance(), OutgoingTaskDetailsActivity.class);
+            intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(OutgoingTaskDetailsActivity.FULL_DATA, taskItem);
+            App.getInstance().startActivity(intent);
+        }
+        else if(item.getTitle().equals(getString(R.string.cancel_task_menu_item))){
+            // отменю задачу
+            showCancelTaskDialog(taskItem);
+        }
+        else if(item.getTitle().equals(getString(R.string.call_executor_menu_item))){
+            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + "+79308184347"));
+            startActivity(intent);
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void showCancelTaskDialog(TaskItem taskItem) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder
+                .setPositiveButton("Да, отменить", (dialog, which) -> mViewModel.cancelTask(taskItem))
+                .setNegativeButton("Нет", null)
+                .setTitle("Отмена задачи")
+                .setMessage("Задача больше неактуальна?").create().show();
     }
 }
