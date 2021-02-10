@@ -1,7 +1,6 @@
 package net.veldor.todo.ui;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.work.WorkInfo;
@@ -42,7 +40,7 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
     private ShowWaitingDialog mWaitingDialog;
     private TextView mTaskStateView;
     private Button mCancelTaskBtn;
-    private Button mCallExecutorBtn;
+    private Button mCallExecutorBtn, mEmailExecutorBtn, showAttachedPhotoBtn, downloadAttachedFileBtn;
     private ActivityTaskDetailBinding mRootBinding;
 
     @Override
@@ -55,16 +53,6 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         setupObservers();
         setupUI();
         handleContentLoading();
-//        TextView createDateView = findViewById(R.id.createTime);
-//        if (createDateView != null) {
-//            createDateView.setText(String.format(Locale.ENGLISH, "Дата подачи заявки: %s", Grammar.timestampToDate(task.task_creation_time * 1000)));
-//        }
-//        TextView plannedFinishDateView = findViewById(R.id.plannedFinishTime);
-//        if (plannedFinishDateView != null) {
-//            if (task.task_planned_finish_time > 0) {
-//                plannedFinishDateView.setText(String.format(Locale.ENGLISH, ":Срок выполнения: %s", Grammar.timestampToDate(task.task_planned_finish_time * 1000)));
-//            }
-//        }
     }
 
     private void setupObservers() {
@@ -88,11 +76,10 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         mCancelTaskBtn = findViewById(R.id.notActualYetBtn);
         mCancelTaskBtn.setOnClickListener(v -> showCancelTaskDialog());
         mTaskStateView = findViewById(R.id.taskState);
-        mCallExecutorBtn = findViewById(R.id.call_executor);
-        mCallExecutorBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + "+79308184347"));
-            startActivity(intent);
-        });
+        mCallExecutorBtn = findViewById(R.id.callExecutor);
+        mEmailExecutorBtn = findViewById(R.id.mailExecutor);
+        showAttachedPhotoBtn = findViewById(R.id.showAttachedPhoto);
+        downloadAttachedFileBtn = findViewById(R.id.downloadAttachedFile);
     }
 
     private void showCancelTaskDialog() {
@@ -166,6 +153,30 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
     private void fillInfo(TaskItem taskInfo) {
         Log.d("surprise", "OutgoingTaskDetailsActivity fillInfo 165: rewrite " + taskInfo.task_status);
         hideWaiter();
+        if(taskInfo.imageFile){
+            showAttachedPhotoBtn.setVisibility(View.VISIBLE);
+            showAttachedPhotoBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mViewModel.downloadPhoto();
+                }
+            });
+        }
+        else{
+            showAttachedPhotoBtn.setVisibility(View.GONE);
+        }
+        if(taskInfo.attachmentFile){
+            downloadAttachedFileBtn.setVisibility(View.VISIBLE);
+            downloadAttachedFileBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mViewModel.downloadZip();
+                }
+            });
+        }
+        else{
+            downloadAttachedFileBtn.setVisibility(View.GONE);
+        }
         if(taskInfo.executor == null || taskInfo.executor.isEmpty()){
             taskInfo.executor = getString(R.string.executor_not_set_message);
         }
@@ -177,9 +188,35 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         }
         if(taskInfo.executor.isEmpty() || taskInfo.task_status_code == 4 || taskInfo.executor.equals(getString(R.string.executor_not_set_message))){
             mCallExecutorBtn.setVisibility(View.GONE);
+            mEmailExecutorBtn.setVisibility(View.GONE);
         }
         else{
-            mCallExecutorBtn.setVisibility(View.VISIBLE);
+
+            if(taskInfo.executorPhone != null && !taskInfo.executorPhone.isEmpty()){
+                mCallExecutorBtn.setVisibility(View.VISIBLE);
+                mCallExecutorBtn.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + taskInfo.executorPhone));
+                    startActivity(intent);
+                });
+            }
+            else{
+                mCallExecutorBtn.setVisibility(View.GONE);
+            }
+            if(taskInfo.executorEmail != null && !taskInfo.executorEmail.isEmpty()){
+                Log.d("surprise", "OutgoingTaskDetailsActivity fillInfo 180: email is " + taskInfo.executorEmail);
+                mEmailExecutorBtn.setVisibility(View.VISIBLE);
+                mEmailExecutorBtn.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:" + taskInfo.executorEmail));
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
+                    startActivity(intent);
+                });
+            }
+            else{
+                mEmailExecutorBtn.setVisibility(View.GONE);
+            }
         }
         mTaskStateView.setTextColor(taskInfo.sideColor);
     }

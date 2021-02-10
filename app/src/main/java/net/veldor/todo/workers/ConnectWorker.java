@@ -1,6 +1,7 @@
 package net.veldor.todo.workers;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -34,8 +35,9 @@ public class ConnectWorker extends Worker {
     String handleRequest(String command, Map<String, String> args) throws Exception {
         HttpURLConnection con = getConnection();
         String request = getRequest(command, args);
+        Log.d("surprise", "ConnectWorker handleRequest 37: handle request " + request);
         try (OutputStream os = con.getOutputStream()) {
-            byte[] input = new byte[0];
+            byte[] input;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
                 input = request.getBytes(StandardCharsets.UTF_8);
             }

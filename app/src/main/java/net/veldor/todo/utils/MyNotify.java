@@ -73,9 +73,9 @@ public class MyNotify {
         mLastNotificationId++;
     }
 
-    public void notifyTaskCreated(String task_id) {
+    public void notifyTaskCreated(String taskId, String initiator, String header) {
         Intent fullScreenIntent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
-        fullScreenIntent.putExtra(IncomingTaskDetailsActivity.TASK_ID, task_id);
+        fullScreenIntent.putExtra(IncomingTaskDetailsActivity.TASK_ID, taskId);
         fullScreenIntent.putExtra(IncomingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(App.getInstance(), 0,
                 fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -84,7 +84,7 @@ public class MyNotify {
                 new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_baseline_check_24)
                         .setContentTitle("Новая задача")
-                        .setContentText("Поступила новая задача")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("От: " + initiator + " \n Тема: " + header))
                         .setColor(Color.RED)
                         .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})
                         .setSound(Settings.System.DEFAULT_ALARM_ALERT_URI)
@@ -107,7 +107,7 @@ public class MyNotify {
         mNotificationManager.cancel(callingMessageId);
     }
 
-    public void notifyTaskAccepted(String task_id) {
+    public void notifyTaskAccepted(String task_id, String executor, String task_header) {
         Intent contentIntent = new Intent(App.getInstance(), OutgoingTaskDetailsActivity.class);
         contentIntent.putExtra(OutgoingTaskDetailsActivity.TASK_ID, task_id);
         contentIntent.putExtra(OutgoingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);
@@ -117,8 +117,8 @@ public class MyNotify {
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_baseline_check_24)
-                        .setContentTitle("Изменился статус задачи")
-                        .setContentText("Нажмите, чтобы увидеть подробности")
+                        .setContentTitle("Задаче назначен исполнитель")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Задачу " + task_header + " \n решает " + executor + ". Нажмите на уведомление, чтобы увидеть подробности"))
                         .setColor(Color.GREEN)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent);
@@ -128,7 +128,7 @@ public class MyNotify {
         mLastNotificationId++;
     }
 
-    public void notifyTaskCancelled(String task_id) {
+    public void notifyTaskCancelled(String task_id, String task_header) {
         Intent contentIntent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
         contentIntent.putExtra(IncomingTaskDetailsActivity.TASK_ID, task_id);
         contentIntent.putExtra(IncomingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);
@@ -139,7 +139,7 @@ public class MyNotify {
                 new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_baseline_check_24)
                         .setContentTitle("Задача отменена")
-                        .setContentText("Нажмите, чтобы увидеть подробности")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Задача " + task_header + " отменена пользователем и больше неактуальна. Нажмите на уведомоелние, чтобы увидеть подробности"))
                         .setColor(Color.YELLOW)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent);
@@ -169,7 +169,7 @@ public class MyNotify {
         mNotificationManager.notify(NEW_TASKS_NOTIFICATION, incomingCallNotification);
     }
 
-    public void notifyTaskFinished(String task_id) {
+    public void notifyTaskFinished(String task_id, String task_header) {
         Intent contentIntent = new Intent(App.getInstance(), OutgoingTaskDetailsActivity.class);
         contentIntent.putExtra(OutgoingTaskDetailsActivity.TASK_ID, task_id);
         contentIntent.putExtra(OutgoingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);
@@ -180,7 +180,7 @@ public class MyNotify {
                 new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_baseline_check_24)
                         .setContentTitle("Задача выполнена")
-                        .setContentText("Нажмите, чтобы увидеть подробности")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Задача " + task_header + " решена. Нажмите на уведомление, чтобы увидеть подробности."))
                         .setColor(Color.GREEN)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent);
@@ -190,7 +190,7 @@ public class MyNotify {
         mLastNotificationId++;
     }
 
-    public void notifyTaskDismissed(String task_id, String reason) {
+    public void notifyTaskDismissed(String task_id, String task_header, String reason) {
         Intent contentIntent = new Intent(App.getInstance(), OutgoingTaskDetailsActivity.class);
         contentIntent.putExtra(OutgoingTaskDetailsActivity.TASK_ID, task_id);
         contentIntent.putExtra(OutgoingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);
@@ -201,7 +201,7 @@ public class MyNotify {
                 new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_baseline_check_24)
                         .setContentTitle("Задача отменена исполнителем")
-                        .setContentText("Причина: " + reason)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Задачу " + task_header + " отменил исполнитель. Причина: " + reason))
                         .setColor(Color.RED)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentIntent(pendingIntent);

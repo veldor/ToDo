@@ -43,4 +43,11 @@ public class OutgoingTaskViewModel extends ViewModel {
         return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
     }
 
+    public void downloadPhoto() {
+
+    }
+
+    public void downloadZip() {
+        
+    }
 }

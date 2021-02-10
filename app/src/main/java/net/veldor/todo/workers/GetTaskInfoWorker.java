@@ -2,6 +2,7 @@ package net.veldor.todo.workers;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -39,6 +40,7 @@ public class GetTaskInfoWorker extends ConnectWorker {
         );
         try {
             String answer = handleRequest("getTaskInfo", args);
+            Log.d("surprise", "GetTaskInfoWorker doWork 42: ANSWER info is " + answer);
             if (answer != null) {
                 GsonBuilder builder = new GsonBuilder();
                 Gson responseGson = builder.create();

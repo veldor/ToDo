@@ -23,7 +23,8 @@
             android:id="@+id/mainScrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/call_executor"
+            android:layout_marginBottom="38dp"
+            app:layout_constraintBottom_toTopOf="@+id/notActualYetBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,12 +34,35 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <Button
+                    android:id="@+id/showAttachedPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:text="@string/download_attached_photo_title"/>
+
+                <Button
+                    android:id="@+id/downloadAttachedFile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/showAttachedPhoto"
+                    android:text="@string/download_attached_file_title"/>
+
                 <androidx.cardview.widget.CardView
                     android:id="@+id/taskHeaderWrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toBottomOf="@+id/downloadAttachedFile"
+                    tools:layout_editor_absoluteX="10dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -169,7 +193,34 @@
                             android:paddingEnd="10dp"
                             android:text="@{task.executor}"
                             android:textSize="20sp"
-                            app:layout_constraintTop_toBottomOf="@+id/executorTitle" />
+                            app:layout_constraintTop_toBottomOf="@+id/executorTitle"
+                            tools:layout_editor_absoluteX="5dp" />
+
+                        <Button
+                            android:id="@+id/callExecutor"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:drawableStart="@drawable/ic_baseline_call_24"
+                            android:drawableLeft="@drawable/ic_baseline_call_24"
+                            android:text="@string/call_executor_title"
+                            android:visibility="gone"
+                            app:layout_constraintEnd_toStartOf="@+id/mailExecutor"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/taskExecutor" />
+
+                        <Button
+                            android:id="@+id/mailExecutor"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:drawableStart="@drawable/ic_baseline_mail_24"
+                            android:drawableLeft="@drawable/ic_baseline_mail_24"
+                            android:text="@string/mail_executor_title"
+                            android:visibility="gone"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toEndOf="@+id/callExecutor"
+                            app:layout_constraintTop_toBottomOf="@+id/taskExecutor" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -362,20 +413,6 @@
             android:layout_height="wrap_content"
             android:text="@string/not_actual_yet_message"
             app:layout_constraintBottom_toTopOf="@+id/okBtn"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/call_executor"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_baseline_call_24"
-            android:drawableLeft="@drawable/ic_baseline_call_24"
-            android:drawablePadding="10dp"
-            android:text="@string/call_executor_message"
-            app:layout_constraintBottom_toTopOf="@+id/notActualYetBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />

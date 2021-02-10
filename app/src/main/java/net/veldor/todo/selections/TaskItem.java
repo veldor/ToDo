@@ -5,8 +5,12 @@ import java.io.Serializable;
 public class TaskItem implements Serializable {
     public String id;
     public String initiator;
+    public String initiatorPhone;
+    public String initiatorEmail;
     public String target;
     public String executor;
+    public String executorPhone;
+    public String executorEmail;
     public long task_creation_time;
     public String task_creation_time_formatted;
     public long task_accept_time;
@@ -21,4 +25,6 @@ public class TaskItem implements Serializable {
     public int task_status_code;
     public String executor_comment;
     public int sideColor;
+    public boolean imageFile;
+    public boolean attachmentFile;
 }

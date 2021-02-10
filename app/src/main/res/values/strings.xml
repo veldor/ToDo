@@ -59,4 +59,8 @@
     <string name="task_planned_finish_title">Planned finish</string>
     <string name="task_finished_title">Task finished</string>
     <string name="executor_comment_title">Executor comment</string>
+    <string name="call_executor_title">Call executor</string>
+    <string name="mail_executor_title">Mail executor</string>
+    <string name="download_attached_photo_title">download attached photo</string>
+    <string name="download_attached_file_title">Download attached file</string>
 </resources>
