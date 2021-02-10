@@ -4,23 +4,29 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import net.veldor.todo.selections.RefreshDataResponse;
+import net.veldor.todo.App;
+import net.veldor.todo.utils.FilesHandler;
 import net.veldor.todo.utils.Preferences;
 
-import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class SendNewTaskWorker extends Worker {
 
@@ -29,6 +35,8 @@ public class SendNewTaskWorker extends Worker {
     public static final String TITLE = "title";
     public static final String BODY = "body";
     public static final String TARGET = "target";
+    public static File image;
+    public static DocumentFile zip;
 
     public SendNewTaskWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -45,36 +53,38 @@ public class SendNewTaskWorker extends Worker {
         String target = data.getString(TARGET);
 
         try {
-            URL url = new URL("https://rdcnn.ru/personal-api");
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json; utf-8");
-            con.setRequestProperty("Accept", "application/json");
-            con.setDoOutput(true);
-            String jsonInputString = "{\"cmd\":\"newTask\", \"title\":\"" + title + "\", \"text\":\"" + text + "\", \"target\":\"" + target + "\", \"token\":\"" + Preferences.getInstance().getToken() + "\"}";
-            Log.d("surprise", "SendNewTaskWorker doWork 56: request is " + jsonInputString);
-            try (OutputStream os = con.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
-                os.write(input, 0, input.length);
+            URL url = new URL(App.API_ADDRESS);
+            OkHttpClient client = new OkHttpClient();
+            MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("cmd", "newTask")
+                    .addFormDataPart("token", Preferences.getInstance().getToken())
+                    .addFormDataPart("title", title)
+                    .addFormDataPart("text", text)
+                    .addFormDataPart("target", target);
+            if (image != null && image.isFile() && image.length() > 0) {
+                requestBodyBuilder.addFormDataPart("task_image", image.getName(), RequestBody.create(image, MediaType.parse("image/jpeg")));
             }
+            if (zip != null && zip.isFile() && zip.length() > 0) {
+                InputStream is = App.getInstance().getContentResolver().openInputStream(zip.getUri());
+                requestBodyBuilder.addFormDataPart("task_document", zip.getName(), RequestBody.create(FilesHandler.isToBytes(is), MediaType.parse("application/zip")));
+                Log.d("surprise", "doWork:73 appended zip");
+            }
+            RequestBody requestBody = requestBodyBuilder.build();
 
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(con.getInputStream(), "utf-8"))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine = null;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                if (response != null) {
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson responseGson = builder.create();
-                    RefreshDataResponse resp = responseGson.fromJson(response.toString(), RefreshDataResponse.class);
-                    return Result.success();
-                }
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response.body() != null) {
+                Log.d("surprise", "doWork:98 have answer " + response.body());
             }
+            return Result.success();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            Log.d("surprise", "doWork:101 error request");
             e.printStackTrace();
         }
 

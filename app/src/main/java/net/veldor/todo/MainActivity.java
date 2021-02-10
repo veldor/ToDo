@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setupInterface();
         checkDose();
-        checkSwtitchToFragment();
+        checkSwitchToFragment();
     }
 
-    private void checkSwtitchToFragment() {
+    private void checkSwitchToFragment() {
         int startFragment = getIntent().getIntExtra(START_FRAGMENT, -1);
         if(startFragment > 0){
             switchToIncoming();
@@ -86,9 +86,11 @@ public class MainActivity extends AppCompatActivity {
                     R.id.navigation_incoming, R.id.navigation_outgoing)
                     .build();
             NavHostFragment fragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-            NavController navController = fragment.getNavController();
-            NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-            NavigationUI.setupWithNavController(mNavView, navController);
+            if(fragment != null){
+                NavController navController = fragment.getNavController();
+                NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+                NavigationUI.setupWithNavController(mNavView, navController);
+            }
         }
     }
 

@@ -57,7 +57,9 @@
     <string name="task_accepted_title">Время подтверждения заявки</string>
     <string name="task_planned_finish_title">Планируемое время завершения</string>
     <string name="task_finished_title">Задача завершена</string>
-    <string name="executor_comment_title">Комментарий исполнителя</string>
     <string name="call_executor_title">Позвонить</string>
+    <string name="photo_added_message">Фото добавлено!</string>
+    <string name="zip_added_message">Архив добавлен!</string>
     <string name="mail_executor_title">Написать</string>
+    <string name="executor_comment_title">Комментарий исполнителя</string>
 </resources>

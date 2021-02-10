@@ -56,7 +56,7 @@ public class IncomingFragment extends Fragment {
     private void setupObservers() {
         // буду отслеживать изменение периода, если он меняется- перезапущу таймер
         LiveData<RefreshDataResponse> newTaskData = App.getInstance().mCurrentIncomingList;
-        newTaskData.observe(getActivity(), response -> {
+        newTaskData.observe(mActivity, response -> {
             if (response != null) {
                 if (response.list != null && response.list.size() > 0) {
                     // обновлю данные
@@ -89,7 +89,7 @@ public class IncomingFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        getActivity().getMenuInflater().inflate(R.menu.outgoing_menu, menu);
+        mActivity.getMenuInflater().inflate(R.menu.outgoing_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -105,7 +105,7 @@ public class IncomingFragment extends Fragment {
     }
 
     private void showFilterDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mActivity);
         dialogBuilder.setTitle("Отображать задачи")
                 .setMultiChoiceItems(filterOptions, filter, (dialog, which, isChecked) -> filter[which] = isChecked)
                 .setPositiveButton("Показать", (dialog, which) -> ((IncomingTasksAdapter) recycler.getAdapter()).applyFilter(filter));
@@ -113,11 +113,11 @@ public class IncomingFragment extends Fragment {
     }
 
     private void showSortDialog() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(mActivity);
         dialog.setTitle("Выберите тип сортировки")
                 .setItems(sortingOptions, (dialog1, which) -> ((IncomingTasksAdapter) recycler.getAdapter()).sort(which));
         // покажу список типов сортировки
-        if (!getActivity().isFinishing()) {
+        if (!mActivity.isFinishing()) {
             dialog.show();
         }
     }

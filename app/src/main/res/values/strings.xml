@@ -62,5 +62,8 @@
     <string name="call_executor_title">Call executor</string>
     <string name="mail_executor_title">Mail executor</string>
     <string name="download_attached_photo_title">download attached photo</string>
+    <string name="photo_added_message">Photo added!</string>
+    <string name="zip_added_message">Zip added!</string>
     <string name="download_attached_file_title">Download attached file</string>
+
 </resources>

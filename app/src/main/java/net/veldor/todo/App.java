@@ -16,6 +16,7 @@ import net.veldor.todo.selections.RefreshDataResponse;
 import net.veldor.todo.utils.FirebaseHandler;
 import net.veldor.todo.utils.Preferences;
 import net.veldor.todo.workers.CheckStatusWorker;
+import net.veldor.todo.workers.ConnectPostWorker;
 import net.veldor.todo.workers.UpdateIncomingTaskListWorker;
 import net.veldor.todo.workers.UpdateOutgoingTaskListWorker;
 
@@ -44,6 +45,10 @@ public class App extends Application {
         if (Preferences.getInstance().getFirebaseToken() == null) {
             (new FirebaseHandler()).getToken();
         }
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(ConnectPostWorker.class).addTag(ConnectPostWorker.ACTION).build();
+        WorkManager.getInstance(this).enqueueUniqueWork(ConnectPostWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
+
+
     }
 
     public void startMainWorker() {
