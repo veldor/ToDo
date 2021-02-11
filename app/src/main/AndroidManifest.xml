@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <queries>
         <intent>
@@ -29,20 +31,16 @@
         android:theme="@style/Theme.ToDo"
         android:fullBackupContent="@xml/backup_descriptor">
         <activity
-            android:name=".ui.ExecutorCancelTaskActivity"
-            android:launchMode="singleInstance" />
+            android:name=".ui.ExecutorCancelTaskActivity"/>
         <activity
             android:name=".ui.IncomingTaskDetailsActivity"
-            android:launchMode="singleInstance"
             android:screenOrientation="sensorPortrait"
             android:showOnLockScreen="true"
             tools:targetApi="jelly_bean_mr1" />
         <activity
-            android:name=".ui.OutgoingTaskDetailsActivity"
-            android:launchMode="singleInstance" />
+            android:name=".ui.OutgoingTaskDetailsActivity" />
         <activity
-            android:name=".ui.AddNewTaskActivity"
-            android:launchMode="singleInstance" />
+            android:name=".ui.AddNewTaskActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

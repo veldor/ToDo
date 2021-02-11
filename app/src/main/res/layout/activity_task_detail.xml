@@ -23,8 +23,7 @@
             android:id="@+id/mainScrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="38dp"
-            app:layout_constraintBottom_toTopOf="@+id/notActualYetBtn"
+            app:layout_constraintBottom_toTopOf="@+id/actionButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -176,7 +175,7 @@
                         android:padding="5dp">
 
                         <TextView
-                            android:id="@+id/executorTitle"
+                            android:id="@+id/initiatorTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/task_executor_title"
@@ -184,7 +183,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
-                            android:id="@+id/taskExecutor"
+                            android:id="@+id/taskInitiator"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
@@ -193,7 +192,7 @@
                             android:paddingEnd="10dp"
                             android:text="@{task.executor}"
                             android:textSize="20sp"
-                            app:layout_constraintTop_toBottomOf="@+id/executorTitle"
+                            app:layout_constraintTop_toBottomOf="@+id/initiatorTitle"
                             tools:layout_editor_absoluteX="5dp" />
 
                         <Button
@@ -207,7 +206,7 @@
                             app:layout_constraintEnd_toStartOf="@+id/mailExecutor"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/taskExecutor" />
+                            app:layout_constraintTop_toBottomOf="@+id/taskInitiator" />
 
                         <Button
                             android:id="@+id/mailExecutor"
@@ -220,7 +219,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toEndOf="@+id/callExecutor"
-                            app:layout_constraintTop_toBottomOf="@+id/taskExecutor" />
+                            app:layout_constraintTop_toBottomOf="@+id/taskInitiator" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -408,7 +407,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            android:id="@+id/notActualYetBtn"
+            android:id="@+id/actionButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/not_actual_yet_message"

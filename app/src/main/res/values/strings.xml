@@ -65,5 +65,11 @@
     <string name="photo_added_message">Photo added!</string>
     <string name="zip_added_message">Zip added!</string>
     <string name="download_attached_file_title">Download attached file</string>
+    <string name="task_initiator_title">Task initiator</string>
+    <string name="accept_action_titile">Accept</string>
+    <string name="how_many_time_you_need_for_complete_message">How many time you need for complete?</string>
+    <string name="accept_task_title">Accept task</string>
+    <string name="finish_task_request_titile">Really finish task?</string>
+    <string name="processing_title">Processing</string>
 
 </resources>

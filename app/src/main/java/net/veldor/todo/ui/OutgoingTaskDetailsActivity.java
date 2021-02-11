@@ -73,7 +73,7 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(getString(R.string.outgoing_task_title));
         Button okButton = findViewById(R.id.okBtn);
         okButton.setOnClickListener(v -> finish());
-        mCancelTaskBtn = findViewById(R.id.notActualYetBtn);
+        mCancelTaskBtn = findViewById(R.id.actionButton);
         mCancelTaskBtn.setOnClickListener(v -> showCancelTaskDialog());
         mTaskStateView = findViewById(R.id.taskState);
         mCallExecutorBtn = findViewById(R.id.callExecutor);
@@ -108,8 +108,8 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
             String taskId = intent.getStringExtra(TASK_ID);
             handleAction(mViewModel.getTaskInfo(taskId));
         } else {
-            fillInfo(mData);
             mRootBinding.setTask(mData);
+            fillInfo(mData);
         }
     }
 
@@ -140,7 +140,7 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         confirmTask.observe(this, workInfo -> {
             if (workInfo != null) {
                 if (workInfo.getState() == SUCCEEDED) {
-                    Log.d("surprise", "OutgoingTaskDetailsActivity handleAction 156: success");
+                    mViewModel.getTaskInfo(mData.id);
                 } else if (workInfo.getState() == FAILED) {
                     hideWaiter();
                     Toast.makeText(OutgoingTaskDetailsActivity.this, "Не удалось выполнить операцию, попробуйте ещё раз", Toast.LENGTH_SHORT).show();
@@ -155,11 +155,9 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         hideWaiter();
         if(taskInfo.imageFile){
             showAttachedPhotoBtn.setVisibility(View.VISIBLE);
-            showAttachedPhotoBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mViewModel.downloadPhoto();
-                }
+            showAttachedPhotoBtn.setOnClickListener(v -> {
+                showWaiter();
+                handleAction(mViewModel.downloadPhoto(mData.id));
             });
         }
         else{
@@ -167,11 +165,9 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         }
         if(taskInfo.attachmentFile){
             downloadAttachedFileBtn.setVisibility(View.VISIBLE);
-            downloadAttachedFileBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mViewModel.downloadZip();
-                }
+            downloadAttachedFileBtn.setOnClickListener(v -> {
+                showWaiter();
+                handleAction(mViewModel.downloadZip(mData.id));
             });
         }
         else{
@@ -219,6 +215,7 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
             }
         }
         mTaskStateView.setTextColor(taskInfo.sideColor);
+        mTaskStateView.setText(taskInfo.task_status);
     }
 
     @Override

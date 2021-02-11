@@ -1,7 +1,9 @@
 package net.veldor.todo;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +15,8 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.PermissionChecker;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOGIN_RESULT = 1;
     public static final String START_FRAGMENT = "start fragment";
     public static final int INCOMING_FRAGMENT = 1;
+    private static final int REQUEST_WRITE_READ = 2;
     private BottomNavigationView mNavView;
 
     @Override
@@ -39,6 +44,34 @@ public class MainActivity extends AppCompatActivity {
         setupInterface();
         checkDose();
         checkSwitchToFragment();
+        if(!permissionGranted()){
+            showPermissionDialog();
+        }
+    }
+
+    private boolean permissionGranted() {
+        int writeResult;
+        int readResult;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            writeResult = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            readResult = checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        } else {
+            writeResult = PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            readResult = PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        return writeResult == PackageManager.PERMISSION_GRANTED && readResult == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void showPermissionDialog() {
+        if (!MainActivity.this.isFinishing()) {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            dialogBuilder.setTitle("Необходимо предоставить разрешения")
+                    .setMessage("Для загрузки файлов необходимо предоставить доступ к памяти устройства")
+                    .setCancelable(false)
+                    .setPositiveButton("Предоставить разрешение", (dialog, which) -> ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_WRITE_READ))
+                    .setNegativeButton("Нет, закрыть приложение", (dialog, which) -> finish());
+            dialogBuilder.create().show();
+        }
     }
 
     private void checkSwitchToFragment() {

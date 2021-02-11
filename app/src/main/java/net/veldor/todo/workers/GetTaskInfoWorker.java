@@ -89,9 +89,14 @@ public class GetTaskInfoWorker extends ConnectWorker {
                         resp.task_info.task_status_code = 3;
                         resp.task_info.sideColor = Color.parseColor("#8BC34A");
                         break;
-                    case "cancelled":
-                        resp.task_info.task_status = "Отменено";
+                    case "cancelled_by_initiator":
+                        resp.task_info.task_status = "Отменено пользователем";
                         resp.task_info.task_status_code = 4;
+                        resp.task_info.sideColor = Color.parseColor("#FF5722");
+                        break;
+                    case "cancelled_by_executor":
+                        resp.task_info.task_status = "Отменено исполнителем";
+                        resp.task_info.task_status_code = 5;
                         resp.task_info.sideColor = Color.parseColor("#FF5722");
                         break;
                 }

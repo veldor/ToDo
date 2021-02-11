@@ -76,9 +76,10 @@ public class SendNewTaskWorker extends Worker {
                     .url(url)
                     .post(requestBody)
                     .build();
+            Log.d("surprise", "SendNewTaskWorker doWork 79: send add task request " + request.body().toString());
             Response response = client.newCall(request).execute();
             if (response.body() != null) {
-                Log.d("surprise", "doWork:98 have answer " + response.body());
+                Log.d("surprise", "doWork:98 have answer " + response.body().string());
             }
             return Result.success();
         } catch (MalformedURLException e) {

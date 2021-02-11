@@ -3,12 +3,12 @@ package net.veldor.todo.ui;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -21,14 +21,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.work.WorkInfo;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import net.veldor.todo.App;
 import net.veldor.todo.R;
+import net.veldor.todo.databinding.ActivityIncomingTaskBinding;
 import net.veldor.todo.selections.GetTaskInfoResponse;
 import net.veldor.todo.selections.TaskItem;
 import net.veldor.todo.utils.MyNotify;
@@ -47,17 +47,17 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
     private ShowWaitingDialog mWaitingDialog;
     private PowerManager.WakeLock mWakeLock;
     private IncomingTaskViewModel mViewModel;
-    private TextView mTaskNameView, mTaskTextView, mTaskInitiatorView, mTaskStateView;
-    private NumberPicker numberPicker;
-    private Button mCallInitiatorBtn, mCancelTaskBtn;
+    private TextView mTaskStateView;
     private TaskItem mData;
-    private View mPickerLabel;
-    private FloatingActionButton fab;
+    private ActivityIncomingTaskBinding mRootBinding;
+    private Button mCallExecutorBtn, mEmailExecutorBtn, showAttachedPhotoBtn, downloadAttachedFileBtn;
+    private Button mActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_incoming_task);
+        mRootBinding = DataBindingUtil.setContentView(this, R.layout.activity_incoming_task);
+        mRootBinding.setTask(mData);
         App.getInstance().mTaskInfo.setValue(null);
         mViewModel = new ViewModelProvider(this).get(IncomingTaskViewModel.class);
 
@@ -77,70 +77,91 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
     }
 
     private void fillInfo(TaskItem taskInfo) {
+        invalidateOptionsMenu();
         hideWaiter();
-        switch (taskInfo.task_status) {
-            case "created":
-                taskInfo.task_status = "Ожидает подтвержения";
-                taskInfo.task_status_code = 1;
-                taskInfo.sideColor = Color.parseColor("#FFC107");
-                break;
-            case "accepted":
-                taskInfo.task_status = "В работе";
-                taskInfo.task_status_code = 2;
-                taskInfo.sideColor = Color.parseColor("#03A9F4");
-                break;
-            case "finished":
-                taskInfo.task_status = "Завершено";
-                taskInfo.task_status_code = 3;
-                taskInfo.sideColor = Color.parseColor("#8BC34A");
-                break;
-            case "cancelled_by_initiator":
-                taskInfo.task_status = "Отменено пользователем";
-                taskInfo.task_status_code = 4;
-                taskInfo.sideColor = Color.parseColor("#FF5722");
-                break;
-            case "cancelled_by_executor":
-                taskInfo.task_status = "Отменено исполнителем";
-                taskInfo.task_status_code = 5;
-                taskInfo.sideColor = Color.parseColor("#FF5722");
-                break;
-        }
         if (taskInfo.task_status_code == 1) {
-            // покажу нужные кнопки
-            mPickerLabel.setVisibility(View.VISIBLE);
-            fab.setVisibility(View.VISIBLE);
-            fab.setOnClickListener(v -> acceptTask());
+            mActionButton.setText(getString(R.string.accept_action_titile));
+            mActionButton.setOnClickListener(v -> showAcceptTaskDialog());
         } else if (taskInfo.task_status_code == 2) {
-            fab.setVisibility(View.VISIBLE);
-            mPickerLabel.setVisibility(View.GONE);
-            fab.setOnClickListener(v -> finishTask());
-        } else {
-            fab.setVisibility(View.GONE);
-            mPickerLabel.setVisibility(View.GONE);
-            mCancelTaskBtn.setVisibility(View.GONE);
+            mActionButton.setText(getString(R.string.finish_task_title));
+            mActionButton.setOnClickListener(v -> showFinishTaskDialog());
         }
-        mTaskNameView.setText(taskInfo.task_header);
-        mTaskTextView.setText(taskInfo.task_body);
-        mTaskStateView.setText(taskInfo.task_status);
+        if (taskInfo.imageFile) {
+            showAttachedPhotoBtn.setVisibility(View.VISIBLE);
+            showAttachedPhotoBtn.setOnClickListener(v -> {
+                showWaiter();
+                handleAction(mViewModel.downloadPhoto(taskInfo.id));
+            });
+        } else {
+            showAttachedPhotoBtn.setVisibility(View.GONE);
+        }
+        if (taskInfo.attachmentFile) {
+            downloadAttachedFileBtn.setVisibility(View.VISIBLE);
+            downloadAttachedFileBtn.setOnClickListener(v -> {
+                showWaiter();
+                handleAction(mViewModel.downloadZip(taskInfo.id));
+            });
+        } else {
+            downloadAttachedFileBtn.setVisibility(View.GONE);
+        }
+        if (taskInfo.executor == null || taskInfo.executor.isEmpty()) {
+            taskInfo.executor = getString(R.string.executor_not_set_message);
+        }
+        if (taskInfo.task_status_code == 1 || taskInfo.task_status_code == 2) {
+            mActionButton.setVisibility(View.VISIBLE);
+        } else {
+            mActionButton.setVisibility(View.GONE);
+        }
+        if (taskInfo.initiator.isEmpty() || taskInfo.task_status_code == 4) {
+            mCallExecutorBtn.setVisibility(View.GONE);
+            mEmailExecutorBtn.setVisibility(View.GONE);
+        } else {
+            if (taskInfo.initiatorPhone != null && !taskInfo.initiatorPhone.isEmpty()) {
+                mCallExecutorBtn.setVisibility(View.VISIBLE);
+                mCallExecutorBtn.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + taskInfo.initiatorPhone));
+                    startActivity(intent);
+                });
+            } else {
+                mCallExecutorBtn.setVisibility(View.GONE);
+            }
+            if (taskInfo.initiatorEmail != null && !taskInfo.initiatorEmail.isEmpty()) {
+                Log.d("surprise", "OutgoingTaskDetailsActivity fillInfo 180: email is " + taskInfo.initiatorEmail);
+                mEmailExecutorBtn.setVisibility(View.VISIBLE);
+                mEmailExecutorBtn.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:" + taskInfo.initiatorEmail));
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
+                    startActivity(intent);
+                });
+            } else {
+                mEmailExecutorBtn.setVisibility(View.GONE);
+            }
+        }
         mTaskStateView.setTextColor(taskInfo.sideColor);
-        mTaskInitiatorView.setText(taskInfo.initiator);
-        mCallInitiatorBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + "+79308184347"));
-            startActivity(intent);
-        });
+        mTaskStateView.setText(taskInfo.task_status);
     }
 
-    private void finishTask() {
-        // покажу диалог завершения задачи
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle(R.string.finish_task_title)
-                .setMessage(getString(R.string.finish_task_message))
-                .setCancelable(true)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    showWaiter();
-                    handleAction(mViewModel.finishTask(mData));
-                })
-                .setNegativeButton(android.R.string.cancel, null)
+    private void showFinishTaskDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Task finishing")
+                .setPositiveButton(getString(R.string.finish_task_request_titile), (dialog, which) -> handleAction(mViewModel.finishTask(mData)))
+                .create()
+                .show();
+    }
+
+    private void showAcceptTaskDialog() {
+        View view = getLayoutInflater().inflate(R.layout.dialod_accept_task_layout, null, false);
+        NumberPicker np = view.findViewById(R.id.requiredPeriodPicker);
+        np.setMinValue(1);
+        np.setValue(1);
+        np.setMaxValue(999);
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.accept_task_title))
+                .setView(view)
+                .setPositiveButton(R.string.accept_action_titile, (dialog, which) -> handleAction(mViewModel.confirmTask(mData, np.getValue())))
                 .create().show();
     }
 
@@ -148,7 +169,6 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         // проверю, если сведения о задаче переданы полностью- загружу их в просмотр. Иначе- запущу загрузку их с сервера
         Intent intent = getIntent();
         mData = (TaskItem) intent.getSerializableExtra(FULL_DATA);
-        Log.d("surprise", "IncomingTaskDetailsActivity handleContentLoading 98: data is " + mData);
         if (mData == null) {
             applyShowWindow();
             showWaiter();
@@ -160,6 +180,7 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
             String taskId = intent.getStringExtra(TASK_ID);
             handleAction(mViewModel.getTaskInfo(taskId));
         } else {
+            mRootBinding.setTask(mData);
             fillInfo(mData);
         }
     }
@@ -186,37 +207,15 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
 
     private void setupUI() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(getString(R.string.my_task_title));
-        mPickerLabel = findViewById(R.id.pickerLabel);
-        mTaskNameView = findViewById(R.id.taskName);
-        mTaskTextView = findViewById(R.id.taskDetails);
+        getSupportActionBar().setTitle(getString(R.string.outgoing_task_title));
+        Button okButton = findViewById(R.id.okBtn);
+        okButton.setOnClickListener(v -> finish());
+        mActionButton = findViewById(R.id.actionButton);
         mTaskStateView = findViewById(R.id.taskState);
-        mTaskInitiatorView = findViewById(R.id.taskInitiator);
-        mCallInitiatorBtn = findViewById(R.id.call_initiator);
-        mCancelTaskBtn = findViewById(R.id.cancelTaskBtn);
-        mCancelTaskBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(IncomingTaskDetailsActivity.this, ExecutorCancelTaskActivity.class);
-            intent.putExtra(ExecutorCancelTaskActivity.TASK_ID, mData.id);
-            startActivity(intent);
-        });
-
-        numberPicker = findViewById(R.id.requiredPeriodPicker);
-        numberPicker.setWrapSelectorWheel(true);
-        numberPicker.setMaxValue(365);
-        numberPicker.setMinValue(0);
-
-        fab = findViewById(R.id.fab);
-    }
-
-    private void acceptTask() {
-        // проверю, заполнено ли поле необходимого времени для решения проблемы
-        if (numberPicker.getValue() == 0) {
-            Toast.makeText(IncomingTaskDetailsActivity.this, "Выберите время, необходимое для решения проблемы", Toast.LENGTH_SHORT).show();
-        } else {
-            // покажу окно загрузки и отправлю подтверждение на сервер
-            showWaiter();
-            handleAction(mViewModel.confirmTask(mData, numberPicker.getValue()));
-        }
+        mCallExecutorBtn = findViewById(R.id.callExecutor);
+        mEmailExecutorBtn = findViewById(R.id.mailExecutor);
+        showAttachedPhotoBtn = findViewById(R.id.showAttachedPhoto);
+        downloadAttachedFileBtn = findViewById(R.id.downloadAttachedFile);
     }
 
     private void handleAction(LiveData<WorkInfo> confirmTask) {
@@ -225,6 +224,7 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
             if (workInfo != null) {
                 if (workInfo.getState() == SUCCEEDED) {
                     Log.d("surprise", "IncomingTaskDetailsActivity handleAction 183: data changed!");
+                    mViewModel.getTaskInfo(mData.id);
                 } else if (workInfo.getState() == FAILED) {
                     hideWaiter();
                     Toast.makeText(IncomingTaskDetailsActivity.this, "Не удалось выполнить операцию, попробуйте ещё раз", Toast.LENGTH_SHORT).show();
@@ -259,6 +259,11 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             this.finish();
             return true;
+        } else if (item.getItemId() == R.id.dismissTaskMenu) {
+            Intent intent = new Intent(IncomingTaskDetailsActivity.this, ExecutorCancelTaskActivity.class);
+            intent.putExtra(ExecutorCancelTaskActivity.TASK_ID, mData.id);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -269,5 +274,14 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         if (mData != null) {
             mViewModel.getTaskInfo(mData.id);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (mData != null && mData.task_status_code == 2) {
+            getMenuInflater().inflate(R.menu.incoming_task_menu, menu);
+            return true;
+        }
+        return false;
     }
 }

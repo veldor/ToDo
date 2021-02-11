@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import net.veldor.todo.App;
 import net.veldor.todo.R;
 
 public class ShowWaitingDialog extends DialogFragment {
@@ -16,8 +17,8 @@ public class ShowWaitingDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder adb = new AlertDialog.Builder(getActivity())
-                .setTitle("Processing")
+        AlertDialog.Builder adb = new AlertDialog.Builder(App.getInstance())
+                .setTitle(R.string.processing_title)
                 .setView(R.layout.loading_dialog_layout)
                 .setCancelable(false);
         return adb.create();

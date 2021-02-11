@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import net.veldor.todo.App;
 import net.veldor.todo.utils.Preferences;
 
 import java.io.BufferedReader;
@@ -59,7 +60,7 @@ public class ConnectWorker extends Worker {
         return response.toString();
     }
 
-    private String getRequest(String command, Map<String, String> args) {
+    String getRequest(String command, Map<String, String> args) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"cmd\":\"").append(command).append("\"");
         sb.append(",\"token\":\"").append(Preferences.getInstance().getToken()).append("\"");
@@ -74,8 +75,17 @@ public class ConnectWorker extends Worker {
         return sb.toString();
     }
 
-    private HttpURLConnection getConnection() throws Exception {
-        URL url = new URL("https://rdc-scheluler.ru/api");
+    HttpURLConnection getConnection() throws Exception {
+        URL url = new URL(App.API_ADDRESS);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json; utf-8");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+        return con;
+    }
+    HttpURLConnection getFileConnection() throws Exception {
+        URL url = new URL("https://rdc-scheluler.ru/get-file");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json; utf-8");

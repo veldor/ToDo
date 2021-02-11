@@ -13,6 +13,8 @@ import androidx.work.WorkManager;
 import net.veldor.todo.App;
 import net.veldor.todo.selections.TaskItem;
 import net.veldor.todo.workers.CancelTaskWorker;
+import net.veldor.todo.workers.GetAttachmentWorker;
+import net.veldor.todo.workers.GetImageWorker;
 import net.veldor.todo.workers.GetTaskInfoWorker;
 
 public class OutgoingTaskViewModel extends ViewModel {
@@ -43,11 +45,31 @@ public class OutgoingTaskViewModel extends ViewModel {
         return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
     }
 
-    public void downloadPhoto() {
+    public LiveData<WorkInfo> downloadPhoto(String id) {
+        // запущу рабочего, который загрузит картинку
+        Data inputData = new Data.Builder()
+                .putString(CancelTaskWorker.TASK_ID, id)
+                .build();
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
 
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(GetImageWorker.class).addTag(GetImageWorker.ACTION).setInputData(inputData).setConstraints(constraints).build();
+        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(GetImageWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
+        return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
     }
 
-    public void downloadZip() {
-        
+    public LiveData<WorkInfo> downloadZip(String id) {
+        // запущу рабочего, который загрузит картинку
+        Data inputData = new Data.Builder()
+                .putString(CancelTaskWorker.TASK_ID, id)
+                .build();
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(GetAttachmentWorker.class).addTag(GetAttachmentWorker.ACTION).setInputData(inputData).setConstraints(constraints).build();
+        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(GetAttachmentWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
+        return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
     }
 }

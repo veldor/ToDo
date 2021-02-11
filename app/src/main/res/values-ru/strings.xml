@@ -26,7 +26,7 @@
     <string name="incoming_fragment_title">Входящие</string>
     <string name="sort_message">Сортировка</string>
     <string name="filter_message">Фильтрация</string>
-    <string name="loading_dialog_message">Вхожу, подождите</string>
+    <string name="loading_dialog_message">Выполняю действие, ожидайте</string>
     <string name="dismiss_task_button">Отказаться</string>
     <string name="call_initiator_message">Позвонить заказчику</string>
     <string name="required_period">Дней на решение</string>
@@ -62,4 +62,12 @@
     <string name="zip_added_message">Архив добавлен!</string>
     <string name="mail_executor_title">Написать</string>
     <string name="executor_comment_title">Комментарий исполнителя</string>
+    <string name="download_attached_photo_title">Загрузить фото</string>
+    <string name="download_attached_file_title">Загрузить приложенный файл</string>
+    <string name="task_initiator_title">Заказчик</string>
+    <string name="accept_action_titile">Принять</string>
+    <string name="how_many_time_you_need_for_complete_message">Укажите, сколько дней вам требуется на выполнение задачи</string>
+    <string name="accept_task_title">Принять задачу</string>
+    <string name="finish_task_request_titile">Да, закрыть</string>
+    <string name="processing_title">Обработка</string>
 </resources>
