@@ -63,22 +63,29 @@ public class OutgoingFragment extends Fragment {
         if (!Preferences.getInstance().isUserUnknown()) {
             mViewModel.updateTaskList();
         }
+        mActivity = getActivity();
+        setupObservers();
     }
 
     private void setupObservers() {
-        LiveData<RefreshDataResponse> newTaskData = App.getInstance().mCurrentList;
-        newTaskData.observe(mActivity, response -> {
-            if (response != null) {
-                if (response.list != null && response.list.size() > 0) {
-                    // обновлю данные
-                    ((OutgoingTasksAdapter) recycler.getAdapter()).setItems(response.list, filter);
-                } else {
-                    if (mActivity != null && mActivity.isFinishing()) {
-                        Toast.makeText(mActivity, "Список задач пуст", Toast.LENGTH_SHORT).show();
+        Log.d("surprise", "OutgoingFragment setupObservers 70: init setup observers");
+        if(mActivity != null){
+            LiveData<RefreshDataResponse> newTaskData = App.getInstance().mCurrentList;
+            newTaskData.removeObservers(mActivity);
+            newTaskData.observe(mActivity, response -> {
+                if (response != null) {
+                    Log.d("surprise", "OutgoingFragment setupObservers 74: data refreshed");
+                    if (response.list != null && response.list.size() > 0) {
+                        // обновлю данные
+                        ((OutgoingTasksAdapter) recycler.getAdapter()).setItems(response.list, filter);
+                    } else {
+                        if (mActivity != null && mActivity.isFinishing()) {
+                            Toast.makeText(mActivity, "Список задач пуст", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void setupUI(View root) {

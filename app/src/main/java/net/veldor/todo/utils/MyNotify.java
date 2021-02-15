@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
@@ -74,6 +75,7 @@ public class MyNotify {
     }
 
     public void notifyTaskCreated(String taskId, String initiator, String header) {
+        Log.d("surprise", "MyNotify notifyTaskCreated 77: NEW INCOMING TASK!");
         Intent fullScreenIntent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
         fullScreenIntent.putExtra(IncomingTaskDetailsActivity.TASK_ID, taskId);
         fullScreenIntent.putExtra(IncomingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);

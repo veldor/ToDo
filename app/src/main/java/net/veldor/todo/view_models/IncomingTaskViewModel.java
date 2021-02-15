@@ -1,5 +1,7 @@
 package net.veldor.todo.view_models;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.work.Constraints;
@@ -22,6 +24,7 @@ import net.veldor.todo.workers.GetTaskInfoWorker;
 public class IncomingTaskViewModel extends ViewModel {
 
     public LiveData<WorkInfo> getTaskInfo(String task_id) {
+        Log.d("surprise", "IncomingTaskViewModel getTaskInfo 25: getting task info");
         Data inputData = new Data.Builder()
                 .putString(GetTaskInfoWorker.TASK_ID, task_id)
                 .build();

@@ -32,7 +32,6 @@ import net.veldor.todo.databinding.ActivityIncomingTaskBinding;
 import net.veldor.todo.selections.GetTaskInfoResponse;
 import net.veldor.todo.selections.TaskItem;
 import net.veldor.todo.utils.MyNotify;
-import net.veldor.todo.utils.ShowWaitingDialog;
 import net.veldor.todo.view_models.IncomingTaskViewModel;
 
 import static androidx.work.WorkInfo.State.FAILED;
@@ -44,7 +43,7 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
     public static final String TASK_ID = "task id";
     public static final String NOTIFICATION_ID = "notification id";
     public static final String FULL_DATA = "full data";
-    private ShowWaitingDialog mWaitingDialog;
+    private AlertDialog mWaitingDialog;
     private PowerManager.WakeLock mWakeLock;
     private IncomingTaskViewModel mViewModel;
     private TextView mTaskStateView;
@@ -56,11 +55,14 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        applyShowWindow();
         mRootBinding = DataBindingUtil.setContentView(this, R.layout.activity_incoming_task);
+        mRootBinding.setLifecycleOwner(IncomingTaskDetailsActivity.this);
         mRootBinding.setTask(mData);
+        mRootBinding.invalidateAll();
+        Log.d("surprise", "IncomingTaskDetailsActivity onCreate 65: i create new task window!");
         App.getInstance().mTaskInfo.setValue(null);
         mViewModel = new ViewModelProvider(this).get(IncomingTaskViewModel.class);
-
         setupObservers();
         setupUI();
         handleContentLoading();
@@ -71,12 +73,16 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         item.observe(this, response -> {
             if (response != null && response.task_info != null) {
                 mData = response.task_info;
+                mRootBinding.setLifecycleOwner(IncomingTaskDetailsActivity.this);
+                mRootBinding.setTask(mData);
+                mRootBinding.invalidateAll();
                 fillInfo(mData);
             }
         });
     }
 
     private void fillInfo(TaskItem taskInfo) {
+        Log.d("surprise", "IncomingTaskDetailsActivity fillInfo 81: fill task info");
         invalidateOptionsMenu();
         hideWaiter();
         if (taskInfo.task_status_code == 1) {
@@ -142,6 +148,9 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         }
         mTaskStateView.setTextColor(taskInfo.sideColor);
         mTaskStateView.setText(taskInfo.task_status);
+        //mTaskNameView.setText(taskInfo.task_header);
+        //mTaskBodyView.setText(taskInfo.task_body);
+        Log.d("surprise", "IncomingTaskDetailsActivity fillInfo 151: task header is " + taskInfo.task_header);
     }
 
     private void showFinishTaskDialog() {
@@ -170,7 +179,7 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mData = (TaskItem) intent.getSerializableExtra(FULL_DATA);
         if (mData == null) {
-            applyShowWindow();
+            Log.d("surprise", "IncomingTaskDetailsActivity handleContentLoading 177: no data");
             showWaiter();
             // скрою оповещение, по которому перешли сюда
             int callingMessageId = intent.getIntExtra(NOTIFICATION_ID, -1);
@@ -180,9 +189,13 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
             String taskId = intent.getStringExtra(TASK_ID);
             handleAction(mViewModel.getTaskInfo(taskId));
         } else {
+            Log.d("surprise", "IncomingTaskDetailsActivity handleContentLoading 188: have data");
+            mRootBinding.setLifecycleOwner(IncomingTaskDetailsActivity.this);
             mRootBinding.setTask(mData);
+            mRootBinding.invalidateAll();
             fillInfo(mData);
         }
+        Log.d("surprise", "IncomingTaskDetailsActivity handleContentLoading 172: handle content loading");
     }
 
     private void applyShowWindow() {
@@ -234,10 +247,13 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
     }
 
     private void showWaiter() {
-        if (mWaitingDialog == null) {
-            mWaitingDialog = new ShowWaitingDialog();
-        }
-        mWaitingDialog.show(getSupportFragmentManager(), ShowWaitingDialog.NAME);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IncomingTaskDetailsActivity.this);
+        View view = getLayoutInflater().inflate(R.layout.loading_dialog_layout, null, false);
+        alertDialogBuilder
+                .setTitle("loading...")
+                .setView(view);
+        mWaitingDialog = alertDialogBuilder.create();
+        mWaitingDialog.show();
     }
 
     private void hideWaiter() {
@@ -274,6 +290,7 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         if (mData != null) {
             mViewModel.getTaskInfo(mData.id);
         }
+
     }
 
     @Override

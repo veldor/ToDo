@@ -102,7 +102,7 @@ public class UpdateOutgoingTaskListWorker extends ConnectWorker {
                         }
                     }
                 }
-
+                Log.d("surprise", "UpdateOutgoingTaskListWorker doWork 105: update tasks!!");
                 App.getInstance().mCurrentList.postValue(resp);
                 return Result.success();
             }

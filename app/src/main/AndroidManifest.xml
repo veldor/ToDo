@@ -38,7 +38,7 @@
             android:showOnLockScreen="true"
             tools:targetApi="jelly_bean_mr1" />
         <activity
-            android:name=".ui.OutgoingTaskDetailsActivity" />
+            android:name=".ui.OutgoingTaskDetailsActivity"/>
         <activity
             android:name=".ui.AddNewTaskActivity"/>
         <activity android:name=".MainActivity">

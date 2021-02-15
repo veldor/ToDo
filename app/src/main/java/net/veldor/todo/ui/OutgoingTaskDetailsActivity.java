@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.work.WorkInfo;
@@ -37,7 +38,7 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
     public static final String NOTIFICATION_ID = "notification id";
     private OutgoingTaskViewModel mViewModel;
     private TaskItem mData = new TaskItem();
-    private ShowWaitingDialog mWaitingDialog;
+    private AlertDialog mWaitingDialog;
     private TextView mTaskStateView;
     private Button mCancelTaskBtn;
     private Button mCallExecutorBtn, mEmailExecutorBtn, showAttachedPhotoBtn, downloadAttachedFileBtn;
@@ -52,6 +53,7 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
         App.getInstance().mTaskInfo.setValue(null);
         setupObservers();
         setupUI();
+        Log.d("surprise", "OutgoingTaskDetailsActivity onCreate 55: theme is " + getTheme());
         handleContentLoading();
     }
 
@@ -114,10 +116,13 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
     }
 
     private void showWaiter() {
-        if (mWaitingDialog == null) {
-            mWaitingDialog = new ShowWaitingDialog();
-        }
-        mWaitingDialog.show(getSupportFragmentManager(), ShowWaitingDialog.NAME);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(OutgoingTaskDetailsActivity.this);
+        View view = getLayoutInflater().inflate(R.layout.loading_dialog_layout, null, false);
+        alertDialogBuilder
+                .setTitle("loading...")
+                .setView(view);
+        mWaitingDialog = alertDialogBuilder.create();
+        mWaitingDialog.show();
     }
 
     private void hideWaiter() {
@@ -153,52 +158,47 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
     private void fillInfo(TaskItem taskInfo) {
         Log.d("surprise", "OutgoingTaskDetailsActivity fillInfo 165: rewrite " + taskInfo.task_status);
         hideWaiter();
-        if(taskInfo.imageFile){
+        if (taskInfo.imageFile) {
             showAttachedPhotoBtn.setVisibility(View.VISIBLE);
             showAttachedPhotoBtn.setOnClickListener(v -> {
                 showWaiter();
                 handleAction(mViewModel.downloadPhoto(mData.id));
             });
-        }
-        else{
+        } else {
             showAttachedPhotoBtn.setVisibility(View.GONE);
         }
-        if(taskInfo.attachmentFile){
+        if (taskInfo.attachmentFile) {
             downloadAttachedFileBtn.setVisibility(View.VISIBLE);
             downloadAttachedFileBtn.setOnClickListener(v -> {
                 showWaiter();
                 handleAction(mViewModel.downloadZip(mData.id));
             });
-        }
-        else{
+        } else {
             downloadAttachedFileBtn.setVisibility(View.GONE);
         }
-        if(taskInfo.executor == null || taskInfo.executor.isEmpty()){
+        if (taskInfo.executor == null || taskInfo.executor.isEmpty()) {
             taskInfo.executor = getString(R.string.executor_not_set_message);
         }
-        if(taskInfo.task_status_code == 1 || taskInfo.task_status_code == 2){
+        if (taskInfo.task_status_code == 1 || taskInfo.task_status_code == 2) {
             mCancelTaskBtn.setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             mCancelTaskBtn.setVisibility(View.GONE);
         }
-        if(taskInfo.executor.isEmpty() || taskInfo.task_status_code == 4 || taskInfo.executor.equals(getString(R.string.executor_not_set_message))){
+        if (taskInfo.executor.isEmpty() || taskInfo.task_status_code == 4 || taskInfo.executor.equals(getString(R.string.executor_not_set_message))) {
             mCallExecutorBtn.setVisibility(View.GONE);
             mEmailExecutorBtn.setVisibility(View.GONE);
-        }
-        else{
+        } else {
 
-            if(taskInfo.executorPhone != null && !taskInfo.executorPhone.isEmpty()){
+            if (taskInfo.executorPhone != null && !taskInfo.executorPhone.isEmpty()) {
                 mCallExecutorBtn.setVisibility(View.VISIBLE);
                 mCallExecutorBtn.setOnClickListener(v -> {
                     Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + taskInfo.executorPhone));
                     startActivity(intent);
                 });
-            }
-            else{
+            } else {
                 mCallExecutorBtn.setVisibility(View.GONE);
             }
-            if(taskInfo.executorEmail != null && !taskInfo.executorEmail.isEmpty()){
+            if (taskInfo.executorEmail != null && !taskInfo.executorEmail.isEmpty()) {
                 Log.d("surprise", "OutgoingTaskDetailsActivity fillInfo 180: email is " + taskInfo.executorEmail);
                 mEmailExecutorBtn.setVisibility(View.VISIBLE);
                 mEmailExecutorBtn.setOnClickListener(v -> {
@@ -209,8 +209,7 @@ public class OutgoingTaskDetailsActivity extends AppCompatActivity {
                     }
                     startActivity(intent);
                 });
-            }
-            else{
+            } else {
                 mEmailExecutorBtn.setVisibility(View.GONE);
             }
         }
