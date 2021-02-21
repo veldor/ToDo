@@ -4,16 +4,22 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
 import net.veldor.todo.App;
+import net.veldor.todo.BuildConfig;
 import net.veldor.todo.MainActivity;
 import net.veldor.todo.R;
 import net.veldor.todo.ui.IncomingTaskDetailsActivity;
@@ -23,6 +29,7 @@ public class MyNotify {
     private static final String MAIN_CHANNEL_ID = "main";
     private static final String PRIORITY_CHANNEL_ID = "priority";
     public static final int NEW_TASKS_NOTIFICATION = 5;
+    private static final String SILENT_CHANNEL_ID = "silent";
     private static MyNotify instance;
     private final NotificationManager mNotificationManager;
     private int mLastNotificationId = 100;
@@ -40,16 +47,37 @@ public class MyNotify {
                 NotificationChannel nc = new NotificationChannel(MAIN_CHANNEL_ID, App.getInstance().getString(R.string.main_channel_description), NotificationManager.IMPORTANCE_HIGH);
                 nc.setDescription(App.getInstance().getString(R.string.main_channel_description));
                 nc.enableLights(true);
-                nc.setLightColor(Color.RED);
+                nc.setLightColor(Color.GREEN);
                 nc.enableVibration(true);
                 mNotificationManager.createNotificationChannel(nc);
+
+
                 // создам канал уведомлений о важных событиях
-                nc = new NotificationChannel(PRIORITY_CHANNEL_ID, App.getInstance().getString(R.string.main_channel_description), NotificationManager.IMPORTANCE_HIGH);
-                nc.setDescription(App.getInstance().getString(R.string.main_channel_description));
-                nc.enableLights(true);
-                nc.setLightColor(Color.RED);
-                nc.enableVibration(true);
-                mNotificationManager.createNotificationChannel(nc);
+                NotificationChannel nc1 = new NotificationChannel(PRIORITY_CHANNEL_ID, App.getInstance().getString(R.string.high_priority_channel_description), NotificationManager.IMPORTANCE_HIGH);
+                nc1.setDescription(App.getInstance().getString(R.string.high_priority_channel_description));
+                nc1.enableVibration(true);
+                nc1.enableLights(true);
+                nc1.setLightColor(Color.RED);
+                nc1.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                mNotificationManager.createNotificationChannel(nc1);
+
+                // создам бесшумный канал
+                Uri sound = Uri.parse(
+                        "android.resource://" +
+                                App.getInstance().getPackageName() +
+                                "/" + R.raw.silence);
+                AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .build();
+                NotificationChannel nc2 = new NotificationChannel(SILENT_CHANNEL_ID, App.getInstance().getString(R.string.silent_channel_description), NotificationManager.IMPORTANCE_HIGH);
+                nc2.setDescription(App.getInstance().getString(R.string.silent_channel_description));
+                nc2.setSound(sound, audioAttributes);
+                nc2.enableVibration(false);
+                nc2.enableLights(true);
+                nc2.setLightColor(Color.BLUE);
+                nc2.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                mNotificationManager.createNotificationChannel(nc2);
             }
         }
     }
@@ -61,45 +89,40 @@ public class MyNotify {
         return instance;
     }
 
-    public void showTestNotification() {
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(App.getInstance(), MAIN_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_baseline_settings_24)
-                .setContentTitle("Тут заголовок оповещения")
-                .setContentText("Тут текст оповещения")
-                .setPriority(Notification.PRIORITY_HIGH)
-                .setColor(Color.RED)
-                .setAutoCancel(true);
-        Notification notification = notificationBuilder.build();
-        mNotificationManager.notify(mLastNotificationId, notification);
-        mLastNotificationId++;
-    }
-
     public void notifyTaskCreated(String taskId, String initiator, String header) {
-        Log.d("surprise", "MyNotify notifyTaskCreated 77: NEW INCOMING TASK!");
-        Intent fullScreenIntent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
-        fullScreenIntent.putExtra(IncomingTaskDetailsActivity.TASK_ID, taskId);
-        fullScreenIntent.putExtra(IncomingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(App.getInstance(), 0,
-                fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder notificationBuilder;
+        if (Preferences.getInstance().isCreateNewTaskWindow()) {
+            Intent fullScreenIntent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
+            fullScreenIntent.putExtra(IncomingTaskDetailsActivity.TASK_ID, taskId);
+            fullScreenIntent.putExtra(IncomingTaskDetailsActivity.NOTIFICATION_ID, mLastNotificationId);
+            PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(App.getInstance(), 0,
+                    fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_baseline_check_24)
-                        .setContentTitle("Новая задача")
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText("От: " + initiator + " \n Тема: " + header))
-                        .setColor(Color.RED)
-                        .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})
-                        .setSound(Settings.System.DEFAULT_ALARM_ALERT_URI)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setCategory(NotificationCompat.CATEGORY_CALL)
-                        .setContentIntent(fullScreenPendingIntent)
-                        // Use a full-screen intent only for the highest-priority alerts where you
-                        // have an associated activity that you would like to launch after the user
-                        // interacts with the notification. Also, if your app targets Android 10
-                        // or higher, you need to request the USE_FULL_SCREEN_INTENT permission in
-                        // order for the platform to invoke this notification.
-                        .setFullScreenIntent(fullScreenPendingIntent, true);
+            notificationBuilder =
+                    new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
+                            .setSmallIcon(R.drawable.ic_baseline_check_24)
+                            .setContentTitle("Новая задача")
+                            .setStyle(new NotificationCompat.BigTextStyle().bigText("От: " + initiator + " \n Тема: " + header))
+                            .setColor(Color.RED)
+                            .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})
+                            .setSound(Settings.System.DEFAULT_ALARM_ALERT_URI)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setCategory(NotificationCompat.CATEGORY_CALL)
+                            .setContentIntent(fullScreenPendingIntent)
+                            .setFullScreenIntent(fullScreenPendingIntent, true);
 
+        } else {
+            notificationBuilder =
+                    new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
+                            .setSmallIcon(R.drawable.ic_baseline_check_24)
+                            .setContentTitle("Новая задача")
+                            .setStyle(new NotificationCompat.BigTextStyle().bigText("От: " + initiator + " \n Тема: " + header))
+                            .setColor(Color.RED)
+                            .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})
+                            .setSound(Settings.System.DEFAULT_ALARM_ALERT_URI)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setCategory(NotificationCompat.CATEGORY_CALL);
+        }
         Notification incomingCallNotification = notificationBuilder.build();
         mNotificationManager.notify(mLastNotificationId, incomingCallNotification);
         mLastNotificationId++;
@@ -152,21 +175,40 @@ public class MyNotify {
     }
 
     public void showHasNewTasks(int size) {
+        Log.d("surprise", "MyNotify showHasNewTasks 149: show has new tasks1");
         Intent contentIntent = new Intent(App.getInstance(), MainActivity.class);
         contentIntent.putExtra(MainActivity.START_FRAGMENT, MainActivity.INCOMING_FRAGMENT);
         PendingIntent pendingIntent = PendingIntent.getActivity(App.getInstance(), 0,
                 contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder notificationBuilder;
+        if (Preferences.getInstance().isActiveTime() && !Preferences.getInstance().isSilent()) {
+            notificationBuilder =
+                    new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
+                            .setSmallIcon(R.drawable.ic_baseline_check_24)
+                            .setContentTitle("Имеются непринятые заявки")
+                            .setNumber(size)
+                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                            .setContentText("Нажмите, чтобы увидеть подробности")
+                            .setLights(Color.YELLOW, 500, 500)
+                            .setChannelId(PRIORITY_CHANNEL_ID)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setContentIntent(pendingIntent);
+        } else {
+            notificationBuilder =
+                    new NotificationCompat.Builder(App.getInstance(), SILENT_CHANNEL_ID)
+                            .setSmallIcon(R.drawable.ic_baseline_check_24)
+                            .setContentTitle("Имеются непринятые заявки")
+                            .setNumber(size)
+                            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                            .setContentText("Нажмите, чтобы увидеть подробности")
+                            .setLights(Color.YELLOW, 500, 500)
+                            .setChannelId(SILENT_CHANNEL_ID)
+                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                            .setVibrate(new long[]{0L})
+                            .setContentIntent(pendingIntent);
+        }
 
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(App.getInstance(), PRIORITY_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_baseline_check_24)
-                        .setContentTitle("Имеются непринятые заявки")
-                        .setNumber(size)
-                        .setContentText("Нажмите, чтобы увидеть подробности")
-                        .setOngoing(true)
-                        .setColor(Color.YELLOW)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setContentIntent(pendingIntent);
         Notification incomingCallNotification = notificationBuilder.build();
         mNotificationManager.notify(NEW_TASKS_NOTIFICATION, incomingCallNotification);
     }

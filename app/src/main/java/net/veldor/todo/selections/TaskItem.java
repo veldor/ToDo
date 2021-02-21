@@ -27,4 +27,7 @@ public class TaskItem implements Serializable {
     public int sideColor;
     public boolean imageFile;
     public boolean attachmentFile;
+    public String shortCreateTime;
+    public String shortAcceptTime;
+    public String shortFinishTime;
 }

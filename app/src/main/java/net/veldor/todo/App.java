@@ -32,6 +32,7 @@ public class App extends Application {
     public final MutableLiveData<RefreshDataResponse> mCurrentList = new MutableLiveData<>();
     public final MutableLiveData<RefreshDataResponse> mCurrentIncomingList = new MutableLiveData<>();
     public final MutableLiveData<GetTaskInfoResponse> mTaskInfo = new MutableLiveData<>();
+    public final MutableLiveData<String> mExecutorAcceptedTask = new MutableLiveData<>();
 
     public static App getInstance() {
         return instance;
@@ -41,12 +42,13 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+
+        Log.d("surprise", "App onCreate 46: is active? " + Preferences.getInstance().isActiveTime());
         startMainWorker();
         if (Preferences.getInstance().getFirebaseToken() == null) {
             Log.d("surprise", "App onCreate 45: token is null");
             (new FirebaseHandler()).getToken();
         }
-        Log.d("surprise", "App onCreate 49: auth token is " + Preferences.getInstance().getToken());
 
     }
 

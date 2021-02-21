@@ -79,10 +79,21 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
                 fillInfo(mData);
             }
         });
+
+        LiveData<String> taskAcceptedData = App.getInstance().mExecutorAcceptedTask;
+        taskAcceptedData.observe(this, s -> {
+            if (s != null && !s.isEmpty() && mData != null && mData.id.equals(s)) {
+                // Похоже, задачу кто-то перехватил, скрою экран
+                App.getInstance().updateIncomingTaskList();
+                finish();
+            }
+        });
     }
 
     private void fillInfo(TaskItem taskInfo) {
-        Log.d("surprise", "IncomingTaskDetailsActivity fillInfo 81: fill task info");
+        if (taskInfo.task_planned_finish_time == 0 && taskInfo.task_status.equals("В работе")) {
+            showAcceptTaskDialog();
+        }
         invalidateOptionsMenu();
         hideWaiter();
         if (taskInfo.task_status_code == 1) {
@@ -132,7 +143,6 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
                 mCallExecutorBtn.setVisibility(View.GONE);
             }
             if (taskInfo.initiatorEmail != null && !taskInfo.initiatorEmail.isEmpty()) {
-                Log.d("surprise", "OutgoingTaskDetailsActivity fillInfo 180: email is " + taskInfo.initiatorEmail);
                 mEmailExecutorBtn.setVisibility(View.VISIBLE);
                 mEmailExecutorBtn.setOnClickListener(v -> {
                     Intent intent = new Intent(Intent.ACTION_SENDTO);
@@ -150,7 +160,6 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         mTaskStateView.setText(taskInfo.task_status);
         //mTaskNameView.setText(taskInfo.task_header);
         //mTaskBodyView.setText(taskInfo.task_body);
-        Log.d("surprise", "IncomingTaskDetailsActivity fillInfo 151: task header is " + taskInfo.task_header);
     }
 
     private void showFinishTaskDialog() {
@@ -170,7 +179,10 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.accept_task_title))
                 .setView(view)
-                .setPositiveButton(R.string.accept_action_titile, (dialog, which) -> handleAction(mViewModel.confirmTask(mData, np.getValue())))
+                .setPositiveButton(R.string.accept_action_titile, (dialog, which) -> {
+                    handleAction(mViewModel.confirmTask(mData, np.getValue()));
+                    dialog.dismiss();
+                })
                 .create().show();
     }
 
@@ -251,7 +263,8 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         View view = getLayoutInflater().inflate(R.layout.loading_dialog_layout, null, false);
         alertDialogBuilder
                 .setTitle("loading...")
-                .setView(view);
+                .setView(view)
+                .setCancelable(false);
         mWaitingDialog = alertDialogBuilder.create();
         mWaitingDialog.show();
     }

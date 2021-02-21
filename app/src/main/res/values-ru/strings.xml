@@ -70,4 +70,11 @@
     <string name="accept_task_title">Принять задачу</string>
     <string name="finish_task_request_titile">Да, закрыть</string>
     <string name="processing_title">Обработка</string>
+    <string name="logout_menu_item">Выход из учётной записи</string>
+    <string name="show_preferences_menu_item">Настройки</string>
+    <string name="claim_menu_item">Пожаловаться</string>
+    <string name="silent_channel_description">Без звука</string>
+    <string name="high_priority_channel_description">Высокий приоритет</string>
+    <string name="main_channel_description">Основной канал</string>
+    <string name="claim_text_here_message">Текст жалобы</string>
 </resources>

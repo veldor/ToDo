@@ -20,13 +20,10 @@ import net.veldor.todo.ui.IncomingTaskDetailsActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class IncomingTasksAdapter extends RecyclerView.Adapter<IncomingTasksAdapter.ViewHolder> {
-
-    private ArrayList<TaskItem> mRawTasks = new ArrayList<>();
     private ArrayList<TaskItem> mTasks = new ArrayList<>();
     private LayoutInflater mLayoutInflater;
     private int lastSortOption = -1;
@@ -67,29 +64,34 @@ public class IncomingTasksAdapter extends RecyclerView.Adapter<IncomingTasksAdap
         return 0;
     }
 
-    public void setItems(ArrayList<TaskItem> list, boolean[] filter) {
-        mRawTasks = list;
-        applyFilter(filter);
+    public void setItems(ArrayList<TaskItem> list, int thisPageCount) {
+        if(thisPageCount > 0){
+            mTasks.addAll(list);
+        }
+        else{
+            mTasks = list;
+        }
+        notifyDataSetChanged();
     }
 
-    public void applyFilter(boolean[] filter) {
-        mTasks = new ArrayList<>();
-        HashMap<String, Boolean> currentFilter = new HashMap<>();
-        currentFilter.put("Ожидает подтвержения", filter[0]);
-        currentFilter.put("В работе", filter[1]);
-        currentFilter.put("Завершено", filter[2]);
-        currentFilter.put("Отменено пользователем", filter[3]);
-        currentFilter.put("Отменено исполнителем", filter[4]);
-        if (mRawTasks.size() > 0) {
-            for (TaskItem t :
-                    mRawTasks) {
-                if (currentFilter.get(t.task_status)) {
-                    mTasks.add(t);
-                }
-            }
-            notifyDataSetChanged();
-        }
-    }
+//    public void applyFilter(boolean[] filter) {
+//        mTasks = new ArrayList<>();
+//        HashMap<String, Boolean> currentFilter = new HashMap<>();
+//        currentFilter.put("Ожидает подтвержения", filter[0]);
+//        currentFilter.put("В работе", filter[1]);
+//        currentFilter.put("Завершено", filter[2]);
+//        currentFilter.put("Отменено пользователем", filter[3]);
+//        currentFilter.put("Отменено исполнителем", filter[4]);
+//        if (mRawTasks.size() > 0) {
+//            for (TaskItem t :
+//                    mRawTasks) {
+//                if (currentFilter.get(t.task_status)) {
+//                    mTasks.add(t);
+//                }
+//            }
+//            notifyDataSetChanged();
+//        }
+//    }
 
     public void sort(int which) {
         Collections.sort(mTasks, (lhs, rhs) -> {
@@ -145,14 +147,16 @@ public class IncomingTasksAdapter extends RecyclerView.Adapter<IncomingTasksAdap
 
         private final IncomingWorkTaskItemBinding mBinding;
         private TaskItem mWork;
+        private final View mRoot;
 
         public ViewHolder(IncomingWorkTaskItemBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
-            View mRoot = mBinding.getRoot();
+            mRoot = mBinding.getRoot();
             Intent intent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
             mRoot.setOnClickListener(v -> {
+                Log.d("surprise", "ViewHolder ViewHolder 159: click to go to " + mWork.task_header);
                 App.getInstance().mTaskInfo.setValue(null);
                 intent.putExtra(IncomingTaskDetailsActivity.FULL_DATA, mWork);
                 App.getInstance().startActivity(intent);
@@ -172,7 +176,7 @@ public class IncomingTasksAdapter extends RecyclerView.Adapter<IncomingTasksAdap
             menu.setHeaderTitle(App.getInstance().getString(R.string.outgoing_task_context_label));
             menu.add(0, v.getId(), 0, App.getInstance().getString(R.string.show_more_menu_item));
             menu.add(0, v.getId(), 0, App.getInstance().getString(R.string.call_initiator_menu_item));
-
+            menu.add(0, v.getId(), 0, App.getInstance().getString(R.string.claim_menu_item));
         }
     }
 }

@@ -5,6 +5,8 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import net.veldor.todo.App;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -27,23 +29,46 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Map<String, String> data = remoteMessage.getData();
             // проверю, что произошло. Если поступила информация о новой задаче- выведу сообщение
             if(data.containsKey("action")){
-                switch (data.get("action")){
-                    case "task_created":
-                        MyNotify.getInstance().notifyTaskCreated(data.get("task_id"), data.get("initiator"), data.get("task_header"));
-                        break;
-                    case "task_accepted":
-                        MyNotify.getInstance().notifyTaskAccepted(data.get("task_id"), data.get("executor"), data.get("task_header"));
-                        break;
-                    case "task_finished":
-                        MyNotify.getInstance().notifyTaskFinished(data.get("task_id"), data.get("task_header"));
-                        break;
-                    case "task_cancelled":
-                        MyNotify.getInstance().notifyTaskCancelled(data.get("task_id"), data.get("task_header"));
-                        break;
-                    case "task_dismissed":
-                        MyNotify.getInstance().notifyTaskDismissed(data.get("task_id"), data.get("task_header"), data.get("reason"));
-                        break;
+                String action = data.get("action");
+                if(action != null){
+                    switch (action){
+                        case "task_created":
+                            App.getInstance().updateOutgoingTaskList();
+                            App.getInstance().updateIncomingTaskList();
+                            if(Preferences.getInstance().isShowTaskCreated() && !Preferences.getInstance().isNotDisturb()){
+                                MyNotify.getInstance().notifyTaskCreated(data.get("task_id"), data.get("initiator"), data.get("task_header"));
+                            }
+                            break;
+                        case "task_accepted":
+                            App.getInstance().updateOutgoingTaskList();
+                            if(Preferences.getInstance().isShowTaskAccepted() && !Preferences.getInstance().isNotDisturb()){
+                                MyNotify.getInstance().notifyTaskAccepted(data.get("task_id"), data.get("executor"), data.get("task_header"));
+                            }
+                            break;
+                        case "task_finished":
+                            App.getInstance().updateOutgoingTaskList();
+                            if(Preferences.getInstance().isShowTaskFinished() && !Preferences.getInstance().isNotDisturb()){
+                                MyNotify.getInstance().notifyTaskFinished(data.get("task_id"), data.get("task_header"));
+                            }
+                            break;
+                        case "task_cancelled":
+                            App.getInstance().updateOutgoingTaskList();
+                            App.getInstance().updateIncomingTaskList();
+                            if(Preferences.getInstance().isShowTaskCancelled() && !Preferences.getInstance().isNotDisturb()){
+                                MyNotify.getInstance().notifyTaskCancelled(data.get("task_id"), data.get("task_header"));
+                            }
+                            break;
+                        case "task_dismissed":
+                            App.getInstance().updateOutgoingTaskList();
+                            if(Preferences.getInstance().isShowTaskDismissed() && !Preferences.getInstance().isNotDisturb()){
+                                MyNotify.getInstance().notifyTaskDismissed(data.get("task_id"), data.get("task_header"), data.get("reason"));
+                            }
+                            break;
+                        case "task_accepted_by_executor":
+                            App.getInstance().updateIncomingTaskList();
+                            App.getInstance().mExecutorAcceptedTask.postValue(data.get("task_id"));
 
+                    }
                 }
             }
         }
@@ -61,4 +86,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Preferences.getInstance().setFirebaseToken(token);
     }
     // [END on_new_token]
+
+
 }

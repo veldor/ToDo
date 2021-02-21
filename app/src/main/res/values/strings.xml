@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ToDo</string>
     <string name="fab" translatable="false">fab</string>
-    <string name="main_channel_description" translatable="false">Main channel</string>
+    <string name="main_channel_description">Main channel</string>
     <string name="login_label">login</string>
     <string name="prompt_password">pass</string>
     <string name="action_sign_in_short">pass</string>
@@ -71,5 +71,11 @@
     <string name="accept_task_title">Accept task</string>
     <string name="finish_task_request_titile">Really finish task?</string>
     <string name="processing_title">Processing</string>
+    <string name="logout_menu_item">Logout</string>
+    <string name="show_preferences_menu_item">Preferences</string>
+    <string name="high_priority_channel_description">High priority</string>
+    <string name="silent_channel_description">Silent channel</string>
+    <string name="claim_menu_item">" Claim"</string>
+    <string name="claim_text_here_message">claim text here</string>
 
 </resources>

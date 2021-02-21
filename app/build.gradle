@@ -12,8 +12,8 @@ android {
         applicationId "net.veldor.todo"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 3
-        versionName "1.2.1"
+        versionCode 6
+        versionName "1.2.4"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -68,4 +68,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.android.support:multidex:1.0.3'
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 }

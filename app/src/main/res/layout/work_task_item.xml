@@ -36,47 +36,71 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/creationTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                android:paddingEnd="10dp"
+                android:paddingRight="10dp"
+                android:text="@{task.shortCreateTime}"
+                app:layout_constraintEnd_toStartOf="@+id/statusColorView"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/acceptTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                android:paddingEnd="10dp"
+                android:paddingRight="10dp"
+                android:text="@{task.shortAcceptTime}"
+                app:layout_constraintEnd_toStartOf="@+id/statusColorView"
+                app:layout_constraintTop_toBottomOf="@+id/creationTime" />
+            <TextView
+                android:id="@+id/finishTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="0dp"
+                android:paddingLeft="0dp"
+                android:paddingEnd="10dp"
+                android:paddingRight="10dp"
+                android:text="@{task.shortFinishTime}"
+                app:layout_constraintEnd_toStartOf="@+id/statusColorView"
+                app:layout_constraintTop_toBottomOf="@+id/acceptTime" />
+
+            <TextView
                 android:id="@+id/title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
                 android:text="@{task.task_header}"
-                android:textAlignment="center"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toStartOf="@+id/creationTime"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/taskText"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@+id/title"
-                tools:layout_editor_absoluteX="5dp">
+                android:text="@{task.task_body}"
+                app:layout_constraintEnd_toStartOf="@+id/acceptTime"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/title" />
+            <TextView
+                android:id="@+id/executorView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:drawablePadding="10dp"
+                android:drawableStart="@drawable/ic_baseline_settings_24"
+                android:drawableLeft="@drawable/ic_baseline_settings_24"
+                android:text="@{task.executor}"
+                app:layout_constraintEnd_toStartOf="@+id/finishTime"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/taskText" />
 
-                <TextView
-                    android:id="@+id/time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-                <TextView
-                    android:id="@+id/worker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:text="@{task.executor}"
-                    android:layout_weight="1"
-                    app:drawableStartCompat="@drawable/ic_baseline_settings_24"
-                    app:drawableLeftCompat="@drawable/ic_baseline_settings_24" />
-                <TextView
-                    android:id="@+id/state"
-                    android:layout_width="wrap_content"
-                    android:text="@{task.task_status}"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

@@ -9,4 +9,12 @@
         android:icon="@drawable/ic_baseline_filter_list_24"
         android:title="@string/filter_message"
         yourapp:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/logout"
+        android:title="@string/logout_menu_item"
+        yourapp:showAsAction="never" />
+    <item
+        android:id="@+id/showPreferencesMenu"
+        android:title="@string/show_preferences_menu_item"
+        yourapp:showAsAction="never" />
 </menu>

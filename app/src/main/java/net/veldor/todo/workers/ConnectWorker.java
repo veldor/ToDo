@@ -36,7 +36,6 @@ public class ConnectWorker extends Worker {
     String handleRequest(String command, Map<String, String> args) throws Exception {
         HttpURLConnection con = getConnection();
         String request = getRequest(command, args);
-        Log.d("surprise", "handleRequest:38 request " + request);
         try (OutputStream os = con.getOutputStream()) {
             byte[] input;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {

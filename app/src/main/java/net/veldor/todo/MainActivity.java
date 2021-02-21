@@ -23,6 +23,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import net.veldor.todo.selections.Role;
 import net.veldor.todo.ui.LoginActivity;
@@ -31,11 +32,12 @@ import net.veldor.todo.utils.Preferences;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int LOGIN_RESULT = 1;
+    public static final int LOGIN_RESULT = 1;
     public static final String START_FRAGMENT = "start fragment";
     public static final int INCOMING_FRAGMENT = 1;
     private static final int REQUEST_WRITE_READ = 2;
     private BottomNavigationView mNavView;
+    private View mRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupInterface() {
         mNavView = findViewById(R.id.nav_view);
+        mRootView = findViewById(R.id.rootView);
         if (Preferences.getInstance().getRole() == Role.ROLE_USER) {
             mNavView.setVisibility(View.GONE);
         } else {

@@ -1,7 +1,6 @@
 package net.veldor.todo.workers;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
@@ -30,13 +29,14 @@ public class CheckStatusWorker extends  ConnectWorker{
             // проверю новые данные
             try {
                 String answer = handleRequest("getNewTasks", null);
-                Log.d("surprise", "CheckStatusWorker doWork 35: " + answer);
                 if(answer != null){
                     GsonBuilder builder = new GsonBuilder();
                     Gson responseGson = builder.create();
                     NewTaskResponse resp = responseGson.fromJson(answer, NewTaskResponse.class);
-                    if(resp != null &&  resp.new_tasks_count > 0){
-                        MyNotify.getInstance().showHasNewTasks(resp.new_tasks_count);
+                    if(resp != null &&  resp.new_tasks_count > 0 && Preferences.getInstance().isShowWaitingAccept()){
+                        if(!Preferences.getInstance().isNotDisturb()){
+                            MyNotify.getInstance().showHasNewTasks(resp.new_tasks_count);
+                        }
                     }
                 }
             } catch (Exception e) {

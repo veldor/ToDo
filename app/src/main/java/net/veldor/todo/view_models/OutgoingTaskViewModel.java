@@ -17,7 +17,7 @@ import net.veldor.todo.workers.GetAttachmentWorker;
 import net.veldor.todo.workers.GetImageWorker;
 import net.veldor.todo.workers.GetTaskInfoWorker;
 
-public class OutgoingTaskViewModel extends ViewModel {
+public class OutgoingTaskViewModel extends MainViewModel {
 
     public LiveData<WorkInfo> getTaskInfo(String task_id) {
         Data inputData = new Data.Builder()

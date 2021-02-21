@@ -5,5 +5,6 @@ import java.util.ArrayList;
 public class RefreshDataResponse {
     public String status;
     public String message;
+    public int totalTasksCount;
     public ArrayList<TaskItem> list;
 }
