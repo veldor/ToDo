@@ -70,6 +70,12 @@ public class SettingsActivity extends AppCompatActivity {
                 doNotDisturbPref.setChecked(Preferences.getInstance().isNotDisturb());
                 rootScreen.addPreference(doNotDisturbPref);
 
+                SwitchPreference doNotDisturbHolidaysPref = new SwitchPreference(activity);
+                doNotDisturbHolidaysPref.setKey(Preferences.KEY_DO_NOT_DISTURB_HOLIDAYS);
+                doNotDisturbHolidaysPref.setTitle("Не беспокоить по выходным");
+                doNotDisturbHolidaysPref.setSummary("По выходным уведомления будут приходить без звука");
+                rootScreen.addPreference(doNotDisturbHolidaysPref);
+
                 SwitchPreference isSilentPref = new SwitchPreference(activity);
                 isSilentPref.setKey(Preferences.KEY_SILENT);
                 isSilentPref.setSummary("Уведомления без звука и вибрации");

@@ -10,10 +10,11 @@ import androidx.work.WorkManager;
 
 import net.veldor.todo.App;
 import net.veldor.todo.utils.Grammar;
+import net.veldor.todo.view_models.MainViewModel;
 import net.veldor.todo.workers.UpdateIncomingTaskListWorker;
 import net.veldor.todo.workers.UpdateOutgoingTaskListWorker;
 
-public class IncomingViewModel extends ViewModel {
+public class IncomingViewModel extends MainViewModel {
     public void updateTaskList(boolean[] filter, int sortingOption, int sortingReverse, int limit, int page) {
         String filterOptions = Grammar.filterToSting(filter);
         Data inputData = new Data.Builder()

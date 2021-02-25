@@ -147,12 +147,11 @@ public class IncomingTasksAdapter extends RecyclerView.Adapter<IncomingTasksAdap
 
         private final IncomingWorkTaskItemBinding mBinding;
         private TaskItem mWork;
-        private final View mRoot;
 
         public ViewHolder(IncomingWorkTaskItemBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
-            mRoot = mBinding.getRoot();
+            View mRoot = mBinding.getRoot();
             Intent intent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
             mRoot.setOnClickListener(v -> {

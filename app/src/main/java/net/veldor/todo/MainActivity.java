@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
     public static final int INCOMING_FRAGMENT = 1;
     private static final int REQUEST_WRITE_READ = 2;
     private BottomNavigationView mNavView;
-    private View mRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupInterface() {
         mNavView = findViewById(R.id.nav_view);
-        mRootView = findViewById(R.id.rootView);
+        View mRootView = findViewById(R.id.rootView);
         if (Preferences.getInstance().getRole() == Role.ROLE_USER) {
             mNavView.setVisibility(View.GONE);
         } else {

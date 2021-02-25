@@ -1,14 +1,17 @@
 package net.veldor.todo.ui.incoming;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +24,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.work.WorkInfo;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -38,6 +42,8 @@ import net.veldor.todo.utils.Preferences;
 import java.util.Locale;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static androidx.work.WorkInfo.State.FAILED;
+import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static net.veldor.todo.MainActivity.LOGIN_RESULT;
 
 
@@ -232,9 +238,34 @@ public class IncomingFragment extends Fragment {
             } else if (item.getTitle().equals(getString(R.string.call_initiator_menu_item))) {
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + "+79308184347"));
                 startActivity(intent);
+            }else if (item.getTitle().equals(getString(R.string.claim_menu_item))) {
+                showClaimDialog(taskItem);
             }
         }
         return super.onContextItemSelected(item);
+    }
+
+    private void showClaimDialog(TaskItem taskItem) {
+        View view = getLayoutInflater().inflate(R.layout.claim_dialog_view, null, false);
+        new AlertDialog.Builder(mActivity)
+                .setView(view)
+                .setNegativeButton("Отмена", null)
+                .setPositiveButton("Отправить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditText text = view.findViewById(R.id.claimText);
+                        if (text != null) {
+                            Editable value = text.getText();
+                            if (value != null && !value.toString().isEmpty()) {
+                                handleAction(mViewModel.sendClaim(value.toString(), taskItem));
+                                return;
+                            }
+                        }
+                        Toast.makeText(mActivity, "Нужно что-то написать", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .create()
+                .show();
     }
 
     private void showWaiter() {
@@ -266,5 +297,21 @@ public class IncomingFragment extends Fragment {
                 )
                 .setNegativeButton("Нет", null);
         dialogBuilder.create().show();
+    }
+
+    private void handleAction(LiveData<WorkInfo> confirmTask) {
+        showWaiter();
+        // отслежу выполнение задачи, после чего обновлю информацию
+        confirmTask.observe(this, workInfo -> {
+            if (workInfo != null) {
+                if (workInfo.getState() == SUCCEEDED) {
+                    Toast.makeText(mActivity, "Успешно",Toast.LENGTH_LONG).show();
+                    hideWaiter();
+                } else if (workInfo.getState() == FAILED) {
+                    Toast.makeText(mActivity, "Ошибка",Toast.LENGTH_LONG).show();
+                    hideWaiter();
+                }
+            }
+        });
     }
 }

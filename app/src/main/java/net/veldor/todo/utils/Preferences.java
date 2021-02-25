@@ -9,6 +9,7 @@ import net.veldor.todo.App;
 import java.util.Calendar;
 
 public class Preferences {
+    public static final String KEY_DO_NOT_DISTURB_HOLIDAYS = "do not disturb holidays";
     private static final String AUTH_TOKEN = "auth token";
     private static final String PREFERENCE_FIREBASE_TOKEN = "firebase token";
     public static final String KEY_DO_NOT_DISTURB = "do not disturb";
@@ -80,6 +81,9 @@ public class Preferences {
     public boolean isNotDisturb() {
         return mSharedPreferences.getBoolean(KEY_DO_NOT_DISTURB, false);
     }
+    public boolean isNotDisturbAtHolidays() {
+        return mSharedPreferences.getBoolean(KEY_DO_NOT_DISTURB_HOLIDAYS, false);
+    }
     public boolean isSilent() {
         return mSharedPreferences.getBoolean(KEY_SILENT, false);
     }
@@ -125,6 +129,13 @@ public class Preferences {
     }
 
     public boolean isActiveTime() {
+        if(isNotDisturbAtHolidays()){
+            Calendar calendar = Calendar.getInstance();
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            if(dayOfWeek == 1 || dayOfWeek == 6){
+                return true;
+            }
+        }
         // проверю, можно ли шуметь
         int activeTimeStart = getActiveStartTime();
         int activeTimeFinish = getActiveFinishTime();

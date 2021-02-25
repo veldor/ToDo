@@ -16,7 +16,7 @@ import static java.util.Map.entry;
 
 public class TimeHandler {
     private static final String[] months = "января, февраля, марта, апреля, мая, июня, июля, августа, сенрября, октября, ноября, декабря".split(", ");
-    static Map<Integer, String> shortMonths = Map.ofEntries(
+    static final Map<Integer, String> shortMonths = Map.ofEntries(
             entry(0, " янв"),
             entry(1, " фев"),
             entry(2, " мар"),
@@ -30,11 +30,6 @@ public class TimeHandler {
             entry(10, " ноя"),
             entry(11, " дек")
     );
-    public static boolean isWorkingTime(){
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        Log.d("surprise", "TimeHandler isWorkingTime 8: now is " + hour);
-        return hour > 8 && hour < 16;
-    }
 
     public static String formatTime(long timestamp) {
         Date date= new Date(timestamp * 1000);

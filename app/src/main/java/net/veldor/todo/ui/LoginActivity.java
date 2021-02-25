@@ -3,6 +3,7 @@ package net.veldor.todo.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -138,7 +139,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void done() {
         // через секунду закрою активити
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(Looper.myLooper());
         handler.postDelayed(() -> {
             Intent intent = new Intent();
             setResult(RESULT_OK, intent);
