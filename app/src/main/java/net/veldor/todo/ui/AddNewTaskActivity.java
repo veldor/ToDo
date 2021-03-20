@@ -138,7 +138,6 @@ public class AddNewTaskActivity extends AppCompatActivity {
         if (!AddNewTaskActivity.this.isFinishing() && !mIsPaused) {
             mShowLoadDialog.show();
         }
-
     }
 
     private void hideWaitingDialog() {
@@ -148,11 +147,20 @@ public class AddNewTaskActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (mShowLoadDialog != null) {
+            mShowLoadDialog.dismiss();
+            mShowLoadDialog = null;
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == TAKE_PHOTO_REQUEST && resultCode == Activity.RESULT_OK) {
             Log.d("surprise", "onActivityResult:140 have photo! " + mPhotoFile.length());
             Toast.makeText(this, getString(R.string.photo_added_message), Toast.LENGTH_LONG).show();
-            if(mAddPhotoBtn != null){
+            if (mAddPhotoBtn != null) {
                 mAddPhotoBtn.setVisibility(View.GONE);
             }
         } else if (requestCode == SELECT_ZIP_REQUEST && resultCode == Activity.RESULT_OK) {
@@ -164,7 +172,7 @@ public class AddNewTaskActivity extends AppCompatActivity {
                     if (dl != null && dl.isFile() && dl.length() > 0) {
                         mSelectedFile = dl;
                         Toast.makeText(this, getString(R.string.zip_added_message), Toast.LENGTH_LONG).show();
-                        if(mAddFileBtn != null){
+                        if (mAddFileBtn != null) {
                             mAddFileBtn.setVisibility(View.GONE);
                         }
                     }

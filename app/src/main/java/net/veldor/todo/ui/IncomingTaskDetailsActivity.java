@@ -83,8 +83,10 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         LiveData<String> taskAcceptedData = App.getInstance().mExecutorAcceptedTask;
         taskAcceptedData.observe(this, s -> {
             if (s != null && !s.isEmpty() && mData != null && mData.id.equals(s)) {
+                App.getInstance().mExecutorAcceptedTask.setValue(null);
                 // Похоже, задачу кто-то перехватил, скрою экран
                 App.getInstance().updateIncomingTaskList();
+                Log.d("surprise", "IncomingTaskDetailsActivity setupObservers 88: somebody stole this task!");
                 finish();
             }
         });
@@ -207,7 +209,6 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
             mRootBinding.invalidateAll();
             fillInfo(mData);
         }
-        Log.d("surprise", "IncomingTaskDetailsActivity handleContentLoading 172: handle content loading");
     }
 
     private void applyShowWindow() {
@@ -281,6 +282,7 @@ public class IncomingTaskDetailsActivity extends AppCompatActivity {
         if (mWakeLock != null) {
             mWakeLock.release();
         }
+        Log.d("surprise", "IncomingTaskDetailsActivity onDestroy 283: i destroyed(");
     }
 
     @Override

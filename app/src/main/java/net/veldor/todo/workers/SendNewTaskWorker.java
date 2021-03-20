@@ -85,7 +85,7 @@ public class SendNewTaskWorker extends Worker {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            Log.d("surprise", "doWork:101 error request");
+            Log.d("surprise", "doWork:101 error request ");
             e.printStackTrace();
         }
 

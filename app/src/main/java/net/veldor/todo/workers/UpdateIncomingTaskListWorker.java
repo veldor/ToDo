@@ -40,10 +40,15 @@ public class UpdateIncomingTaskListWorker extends ConnectWorker {
         try {
             Data data = getInputData();
             String filter = data.getString(FILTER_DATA);
+            if(filter == null){
+                filter = "11000";
+            }
             int sort = data.getInt(SORT_DATA, 0);
             int limit = data.getInt(LIMIT_DATA, 0);
             int page = data.getInt(PAGE_DATA, 0);
             int sortReverse = data.getInt(SORT_REVERSE_DATA, 0);
+
+
             Map<String, String> args = Map.ofEntries(
                     entry("filter", filter),
                     entry("sort", String.valueOf(sort)),

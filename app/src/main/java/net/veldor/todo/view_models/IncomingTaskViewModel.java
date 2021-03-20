@@ -33,7 +33,7 @@ public class IncomingTaskViewModel extends MainViewModel {
                 .build();
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(GetTaskInfoWorker.class).addTag(GetTaskInfoWorker.ACTION).setInputData(inputData).setConstraints(constraints).build();
-        WorkManager.getInstance(App.getInstance()).enqueueUniqueWork(GetTaskInfoWorker.ACTION, ExistingWorkPolicy.REPLACE, work);
+        WorkManager.getInstance(App.getInstance()).enqueue(work);
         return WorkManager.getInstance(App.getInstance()).getWorkInfoByIdLiveData(work.getId());
     }
 

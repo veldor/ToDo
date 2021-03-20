@@ -22,7 +22,6 @@ import static java.util.Map.entry;
 
 public class UpdateOutgoingTaskListWorker extends ConnectWorker {
 
-
     public static final String ACTION = "update task list";
     public static final String FILTER_DATA = "filter data";
     public static final String SORT_DATA = "sort data";
@@ -40,6 +39,9 @@ public class UpdateOutgoingTaskListWorker extends ConnectWorker {
         try {
             Data data = getInputData();
             String filter = data.getString(FILTER_DATA);
+            if(filter == null){
+                filter = "11000";
+            }
             int sort = data.getInt(SORT_DATA, 0);
             int limit = data.getInt(LIMIT_DATA, 0);
             int page = data.getInt(PAGE_DATA, 0);

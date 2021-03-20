@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -230,6 +231,7 @@ public class IncomingFragment extends Fragment {
             }
             TaskItem taskItem = ((IncomingTasksAdapter) recycler.getAdapter()).getItem(position);
             if (item.getTitle().equals(getString(R.string.show_more_menu_item))) {
+                Log.d("surprise", "IncomingFragment onContextItemSelected 233: show " + taskItem.task_header);
                 // открою просмотр элемента
                 Intent intent = new Intent(App.getInstance(), IncomingTaskDetailsActivity.class);
                 intent.addFlags(FLAG_ACTIVITY_NEW_TASK);

@@ -45,12 +45,17 @@ public class LoginWorker extends Worker {
             con.setRequestProperty("Content-Type", "application/json; utf-8");
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
-            String jsonInputString = "{\"cmd\":\"login\", \"login\":\"" + login + "\", \"pass\":\"" + password + "\", \"firebase_token\":\"" + Preferences.getInstance().getFirebaseToken() + "\"}";
+            String jsonInputString = "{\"cmd\":\"login\"," +
+                    " \"login\":\"" + login + "\"," +
+                    " \"pass\":\"" + password + "\"," +
+                    " \"is_ios\":\"0\"," +
+                    " \"firebase_token\":\"" + Preferences.getInstance().getFirebaseToken() + "\"}";
             try(OutputStream os = con.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
+                @SuppressWarnings("CharsetObjectCanBeUsed") byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
             }
 
+            //noinspection CharsetObjectCanBeUsed
             try(BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), "utf-8"))) {
                 StringBuilder response = new StringBuilder();
@@ -58,16 +63,14 @@ public class LoginWorker extends Worker {
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                if(response != null){
-                    GsonBuilder builder = new GsonBuilder();
-                    Gson responseGson = builder.create();
-                    LoginResponse resp = responseGson.fromJson(response.toString(), LoginResponse.class);
-                    Log.d("surprise", "LoginWorker doWork 62: " + resp.status);
-                    if(resp.token != null){
-                        Preferences.getInstance().saveToken(resp.token);
-                        Preferences.getInstance().saveRole(resp.role);
-                        return Result.success();
-                    }
+                GsonBuilder builder = new GsonBuilder();
+                Gson responseGson = builder.create();
+                LoginResponse resp = responseGson.fromJson(response.toString(), LoginResponse.class);
+                Log.d("surprise", "LoginWorker doWork 62: " + resp.status);
+                if(resp.token != null){
+                    Preferences.getInstance().saveToken(resp.token);
+                    Preferences.getInstance().saveRole(resp.role);
+                    return Result.success();
                 }
             }
         } catch (MalformedURLException e) {
